@@ -1,0 +1,5 @@
+configure_file(README.md README.md COPYONLY)
+configure_file(test_mhd_brio_wu_I_2d.ini test_mhd_brio_wu_I_2d.ini COPYONLY)
+configure_file(test_mhd_brio_wu_II_2d.ini test_mhd_brio_wu_II_2d.ini COPYONLY)
+configure_file(plot_brio_wu_I.py plot_brio_wu_I.py COPYONLY)
+configure_file(plot_brio_wu_II.py plot_brio_wu_II.py COPYONLY)

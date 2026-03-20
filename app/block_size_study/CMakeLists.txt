@@ -1,0 +1,5 @@
+configure_file(run.py run.py COPYONLY)
+configure_file(test_mhd_orszag_tang_2d.ini.tmpl test_mhd_orszag_tang_2d.ini)
+configure_file(test_mhd_orszag_tang_3d.ini.tmpl test_mhd_orszag_tang_3d.ini)
+configure_file(test_mhd_blast_2d.ini.tmpl test_mhd_blast_2d.ini)
+configure_file(test_mhd_blast_3d.ini.tmpl test_mhd_blast_3d.ini)

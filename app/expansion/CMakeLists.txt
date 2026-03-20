@@ -1,0 +1,5 @@
+configure_file(README.md README.md COPYONLY)
+configure_file(test_mhd_expansion_I_2d.ini test_mhd_expansion_I_2d.ini COPYONLY)
+configure_file(test_mhd_expansion_II_2d.ini test_mhd_expansion_II_2d.ini COPYONLY)
+configure_file(plot_I.py plot_I.py COPYONLY)
+configure_file(plot_II.py plot_II.py COPYONLY)

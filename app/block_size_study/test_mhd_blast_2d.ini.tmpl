@@ -1,0 +1,135 @@
+#
+# test case parameters adapted from
+# https://www.astro.princeton.edu/~jstone/Athena/tests/blast/blast.html
+#
+
+[run]
+dimension=2
+tEnd=0.1
+nStepmax=100000
+
+# noutput equals -1 means we dump data at every time steps
+nOutput=1
+
+[amr]
+level_min=3
+level_max=6
+
+use_block_data=yes
+bx=8
+by=8
+
+# amr refine criterion use at init condition
+# possible value: ALWAYS_REFINE, GEOMETRIC, SAME_AS_REGULAR_DYNAMICS
+refine_criterion_at_init=GEOMETRIC
+
+# init step may contain calls to globalRefine
+# if the following option is true, we interleave
+# calls to load balancing in between globalRefine
+# if the following option is false, a single load
+# balancing operation is done at the end of
+# globalRefine steps
+enable_load_balance_during_init=false
+
+# refine criterion (used during regular dynamics)
+# example parameter for using LOHNER_UNSPLIT criterion
+refine_criterion=LOHNER_UNSPLIT
+epsilon_refine=0.16
+epsilon_coarsen=0.02
+epsilon_lohner=0.02
+
+# example parameter for using LOHNER_UNSPLIT criterion
+#refine_criterion=SIMPLE_GRADIENT
+#epsilon_refine=0.1
+#epsilon_coarsen=0.01
+
+# p4est connectivity type
+connectivity=brick
+
+# control MPI load balancing (number of time steps between two
+# consecutive load balancing)
+load_balancing_frequency=10
+
+# control AMR cycle frequency (number of time steps between two
+# consecutive AMR cycles)
+cycle_frequency=10
+
+#
+# when using two AMR refinement criterion (one for init conditions,
+# one of the rest of the simulation run), we may want to disable the first amr cycle
+# to smooth the transition between the two AMR criterion.
+#
+disable_first_amr_cycle=yes
+
+#
+# prolongation operator used when extrapolating from coarse to fine cell
+#
+cell_centered_prolongation_type=SIMPLE_COPY
+#cell_centered_prolongation_type=EXTRAPOLATE_LINEAR_MINMOD
+
+#
+# number of octants per computing group (only useful when using implementation 1 or 2)
+# larger values improve performance but increase memory footprint
+#nbOctsPerGroup=128
+
+[p4est_connectivity]
+nbrick_x=1
+nbrick_y=1
+
+periodic_x=1
+periodic_y=1
+
+[mesh]
+xmin=-0.5
+ymin=-0.5
+
+scaling_factor=1.0
+
+boundary_type_xmin=WALL
+boundary_type_xmax=WALL
+
+boundary_type_ymin=WALL
+boundary_type_ymax=WALL
+
+[hydro]
+gamma0=1.666
+cfl=0.8
+niter_riemann=10
+slope_type=2
+problem=blast
+riemann=HLLD
+implementation_version=0
+
+[blast]
+density_in=1.0
+density_out=1.0
+pressure_in=10.0
+pressure_out=0.1
+radius=0.25
+
+# B0 is magnetic field norm
+# bx = B0/sqrt(2)
+# by = B0/sqrt(2)
+# bz = 0
+
+# here B0=1.0
+bx=0.7071067811865475
+by=0.7071067811865475
+bz=0.0
+
+# here B0=0.0 (pure hydro => useful to cross-check results with muscl-hydro)
+#bx=0.0
+#by=0.0
+#bz=0.0
+
+[output]
+outputDir=./
+outputPrefix=test_mhd_blast_2d
+outputVtkAscii=false
+write_variables=rho,divB
+write_mesh_info=no
+write_mesh_level=yes
+write_iOct=no
+hdf5_enabled=yes
+enable_writing_leaf_data=no
+write_conformal_status=no
