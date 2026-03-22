@@ -82,6 +82,13 @@ run_simulation(ParallelEnv const &       par_env,
   if (conservativity_check_enabled)
     solver->register_volume_integrals(true);
 
+  // static AMR (froze AMR mesh computed in initial condition) ?
+  const auto static_amr = config_map.getBool("amr", "static", false);
+  if (static_amr)
+  {
+    solver->deactivate_amr_cycle();
+  }
+
   // MHD solver time loop
   solver->run();
 
