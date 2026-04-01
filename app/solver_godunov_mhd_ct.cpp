@@ -130,36 +130,56 @@ run_simulation(ParallelEnv const &       par_env,
     const auto st_params = MHDShockTubeParams(config_map);
     const auto st_name = config_map.getString("shock-tube", "name", "shock_tube");
 
-    const auto cell_var_ids = std::vector<int32_t>{
-      solver_mhd->model().get_fieldmap()[core::models::MHD::ID],
-      solver_mhd->model().get_fieldmap()[core::models::MHD::IP],
-      solver_mhd->model().get_fieldmap()[core::models::MHD::IU],
-      solver_mhd->model().get_fieldmap()[core::models::MHD::IV],
-      solver_mhd->model().get_fieldmap()[core::models::MHD::IW],
-    };
+    {
+      const auto cell_var_ids = std::vector<int32_t>{
+        solver_mhd->model().get_fieldmap()[core::models::MHD::ID],
+        solver_mhd->model().get_fieldmap()[core::models::MHD::IE],
+        solver_mhd->model().get_fieldmap()[core::models::MHD::IU],
+        solver_mhd->model().get_fieldmap()[core::models::MHD::IV],
+        solver_mhd->model().get_fieldmap()[core::models::MHD::IW],
+      };
 
-    const auto cell_var_names =
-      std::vector<std::string>{ "rho", "pressure", "rhou", "rhov", "rhow" };
+      const auto cell_var_names = std::vector<std::string>{ "rho", "etot", "rhou", "rhov", "rhow" };
 
-    const auto face_var_ids = std::vector<int32_t>{ IX, IY, IZ };
+      const auto face_var_ids = std::vector<int32_t>{ IX, IY, IZ };
 
-    const auto face_var_names = std::vector<std::string>{ "Bx", "By", "Bz" };
+      const auto face_var_names = std::vector<std::string>{ "Bx", "By", "Bz" };
 
-    kalypsso::core::ComputeDataSliceAlongLine<dim, device_t>::apply(
-      solver_mhd->U(),
-      solver_mhd->Bface(),
-      0,
-      solver_mhd->mesh_map()->get_amr_mesh_info().local_num_quadrants(),
-      st_params.direction,
-      solver_mhd->mesh_map()->orchard_keys(),
-      cell_var_ids,
-      cell_var_names,
-      face_var_ids,
-      face_var_names,
-      st_name,
-      par_env,
-      config_map);
+      kalypsso::core::ComputeDataSliceAlongLine<dim, device_t>::apply(
+        solver_mhd->U(),
+        solver_mhd->Bface(),
+        0,
+        solver_mhd->mesh_map()->get_amr_mesh_info().local_num_quadrants(),
+        st_params.direction,
+        solver_mhd->mesh_map()->orchard_keys(),
+        cell_var_ids,
+        cell_var_names,
+        face_var_ids,
+        face_var_names,
+        st_name,
+        par_env,
+        config_map);
+    }
 
+    // also save thermal pressure
+    {
+      const auto thermal_pressure =
+        solver_mhd->get_derived_quantity(godunov_mhd_ct::DERIVED_QUANTITY::THERMAL_PRESSURE);
+
+      const auto cell_var_ids = std::vector<int32_t>{ 0 };
+      const auto cell_var_names = std::vector<std::string>{ "pressure" };
+      kalypsso::core::ComputeDataSliceAlongLine<dim, device_t>::apply(
+        thermal_pressure,
+        0,
+        solver_mhd->mesh_map()->get_amr_mesh_info().local_num_quadrants(),
+        st_params.direction,
+        solver_mhd->mesh_map()->orchard_keys(),
+        cell_var_ids,
+        cell_var_names,
+        st_name,
+        par_env,
+        config_map);
+    }
   } // shock tube post-processing
 
   KALYPSSO_INFO("final time is {:010.2f}\n", solver->current_time());
