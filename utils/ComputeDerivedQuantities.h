@@ -31,6 +31,7 @@ namespace godunov_mhd_ct
  * Derived quantities can be scalar or vector valued.
  *
  * - thermal pressure
+ * - speed of sound
  * - specific kinetic energy
  * - magnetic pressure
  * - local Mach number : M =|u|/c where c is local speed of sound
@@ -38,6 +39,7 @@ namespace godunov_mhd_ct
 // clang-format off
 BETTER_ENUM(DERIVED_QUANTITY, uint32_t,
             THERMAL_PRESSURE,
+            SPEED_OF_SOUND,
             SPECIFIC_EKIN,
             MAGNETIC_PRESSURE,
             LOCAL_MACH_NUMBER
@@ -64,7 +66,7 @@ struct ComputeDerivedQuantities
   //! our kokkos execution space
   using ExecutionSpace = typename device_t::execution_space;
 
-  // makes enum Hydro::VarId available
+  //! makes enum Hydro::VarId available
   using MHD = kalypsso::core::models::MHD;
 
   // ==========================================================================
@@ -167,6 +169,12 @@ struct ComputeDerivedQuantities
         {
           res(cell_index, 0, iOct) = qLoc[MHD::IP];
         }
+        else if (quantity._to_integral() == +DERIVED_QUANTITY::SPEED_OF_SOUND)
+        {
+          // ideal gas
+          res(cell_index, 0, iOct) =
+            sqrt(mhd_settings.hydro.gamma0 * qLoc[MHD::IP] / qLoc[MHD::ID]);
+        }
         else if (quantity._to_integral() == +DERIVED_QUANTITY::SPECIFIC_EKIN)
         {
           if constexpr (dim == 2)
@@ -220,6 +228,11 @@ struct ComputeDerivedQuantities
     {
       return run(
         Udata, Bface, fm, DERIVED_QUANTITY::THERMAL_PRESSURE, mhd_settings, iOct_begin, num_octs);
+    }
+    else if (quantity == "speed_of_sound")
+    {
+      return run(
+        Udata, Bface, fm, DERIVED_QUANTITY::SPEED_OF_SOUND, mhd_settings, iOct_begin, num_octs);
     }
     else if (quantity == "specific_ekin")
     {
