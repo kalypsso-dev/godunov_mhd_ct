@@ -4,13 +4,13 @@ This repository is part of [kalypsso-dev](https://github.com/kalypsso-dev) proje
 
 ## What is it ?
 
-This repository contains a MHD solver implementation using the constraint transport method for solving the magnetic induction equation, while preserving the divergence-free property of the mangetic field.
+This repository contains a MHD solver implementation using the constraint transport method for solving the magnetic induction equation, while preserving the divergence-free property of the magnetic field.
 
 The implementation is a direct adaptation from godunov\_hydro, using the same type of finite volume discretization, built upon the HLLD Riemann solver.
 
 ## Scientific references
 
-- [A high order Godunov scheme with constrained transport and adaptive mesh refinement for astrophysical magnetohydrodynamics](https://doi.org/10.1051/0004-6361:20065371), Fromang et al., Astrophysics and Astronomy, 
+- [A high order Godunov scheme with constrained transport and adaptive mesh refinement for astrophysical magnetohydrodynamics](https://doi.org/10.1051/0004-6361:20065371), Fromang et al., Astrophysics and Astronomy,
 Volume 457, number 2, (2006), Pages 371-384.
 
 
