@@ -56,7 +56,6 @@ BETTER_ENUM(DERIVED_QUANTITY, uint32_t,
 template <size_t dim, typename device_t>
 struct ComputeDerivedQuantities
 {
-
   //! type alias for cell-centered data array at block level (see kalypsso_data_container.h)
   using DataArrayBlock_t = DataArrayBlock<dim, real_t, device_t>;
 
@@ -66,7 +65,7 @@ struct ComputeDerivedQuantities
   //! our kokkos execution space
   using ExecutionSpace = typename device_t::execution_space;
 
-  //! makes enum Hydro::VarId available
+  //! makes enum MHD::VarId available
   using MHD = kalypsso::core::models::MHD;
 
   // ==========================================================================
@@ -95,7 +94,7 @@ struct ComputeDerivedQuantities
       FaceDataArrayBlock_t        Bface,
       FieldMap<core::models::MHD> fm,
       DERIVED_QUANTITY            quantity,
-      MHDSettings                 mhd_settings,
+      MHDSettings const &         mhd_settings,
       int64_t                     iOct_begin,
       int64_t                     num_octs)
   {
