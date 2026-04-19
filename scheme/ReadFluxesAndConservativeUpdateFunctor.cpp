@@ -70,7 +70,7 @@ ReadFluxesAndConservativeUpdateFunctor<dim, device_t>::apply(
   // Important note: the caller is responsible for providing a flux array with right shape.
   {
     [[maybe_unused]] auto flux_block_sizes = Uout.block_size();
-    flux_block_sizes[direction]++;
+    flux_block_sizes[static_cast<size_t>(direction)]++;
     assertm(flux_block_sizes == fluxes.shape(), "Flux array has incompatible shape.");
   }
 

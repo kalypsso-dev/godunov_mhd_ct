@@ -123,7 +123,7 @@ InitShockTubeDataFunctor<dim, device_t>::operator()(TagInitHydroVar,
   const int                  dir1 = dim == 2 ? (dir0 + 1) % 2 : (dir0 + 1) % 3;
   [[maybe_unused]] const int dir2 = (dir0 + 2) % 3;
 
-  const bool is_left = xyz[dir0] <= m_st_params.xd;
+  const bool is_left = xyz[static_cast<size_t>(dir0)] <= m_st_params.xd;
 
   if constexpr (dim == 2)
   {
@@ -222,7 +222,7 @@ InitShockTubeDataFunctor<dim, device_t>::operator()(TagInitMagField,
                              dim == 2 ? (direction + 1) % 2 : (direction + 1) % 3,
                              (direction + 2) % 3 };
 
-  const bool is_left = (xyz[dir[IX]] < m_st_params.xd);
+  const bool is_left = (xyz[static_cast<size_t>(dir[IX])] < m_st_params.xd);
 
   if constexpr (dim == 2)
   {
@@ -230,9 +230,10 @@ InitShockTubeDataFunctor<dim, device_t>::operator()(TagInitMagField,
     auto const & i = face_indexes[IX];
     auto const & j = face_indexes[IY];
     auto const & ivar = face_indexes[dim];
-    auto const & ivar_mag = dir[ivar];
+    auto const & ivar_mag = dir[static_cast<size_t>(ivar)];
 
-    m_Bface(i, j, ivar, iOct) = is_left ? m_st_params.BL[ivar_mag] : m_st_params.BR[ivar_mag];
+    m_Bface(i, j, ivar, iOct) = is_left ? m_st_params.BL[static_cast<size_t>(ivar_mag)]
+                                        : m_st_params.BR[static_cast<size_t>(ivar_mag)];
   }
   else if constexpr (dim == 3)
   {
@@ -240,9 +241,10 @@ InitShockTubeDataFunctor<dim, device_t>::operator()(TagInitMagField,
     auto const & j = face_indexes[IY];
     auto const & k = face_indexes[IZ];
     auto const & ivar = face_indexes[dim];
-    auto const & ivar_mag = dir[ivar];
+    auto const & ivar_mag = dir[static_cast<size_t>(ivar)];
 
-    m_Bface(i, j, k, ivar, iOct) = is_left ? m_st_params.BL[ivar_mag] : m_st_params.BR[ivar_mag];
+    m_Bface(i, j, k, ivar, iOct) = is_left ? m_st_params.BL[static_cast<size_t>(ivar_mag)]
+                                           : m_st_params.BR[static_cast<size_t>(ivar_mag)];
 
   } // end dim == 3
 

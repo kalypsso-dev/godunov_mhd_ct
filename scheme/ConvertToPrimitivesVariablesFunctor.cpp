@@ -508,9 +508,10 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::
       cell_loc_neigh, cell_loc_right_y, cell_loc_left_y, ivar, m_userdata_in, slope_type);
 
     // extrapolate conservative variables
-    uLoc[ivar] = m_userdata_in(cell_loc_neigh.cellindex(m_block_sizes), ivar, cell_loc_neigh.iOct) +
-                 KALYPSSO_NUM(0.25) * static_cast<real_t>(ix) * dudx +
-                 KALYPSSO_NUM(0.25) * static_cast<real_t>(iy) * dudy;
+    uLoc[static_cast<size_t>(ivar)] =
+      m_userdata_in(cell_loc_neigh.cellindex(m_block_sizes), ivar, cell_loc_neigh.iOct) +
+      KALYPSSO_NUM(0.25) * static_cast<real_t>(ix) * dudx +
+      KALYPSSO_NUM(0.25) * static_cast<real_t>(iy) * dudy;
   }
 
   // read face-centered magnetic field (already prolongated !)
@@ -530,7 +531,7 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::
   //
   for (int32_t ivar = 0; ivar < nbvar_hydro; ++ivar)
   {
-    m_userdata_out(cellindex_out, ivar, iOct_out) = qLoc[ivar];
+    m_userdata_out(cellindex_out, ivar, iOct_out) = qLoc[static_cast<size_t>(ivar)];
   }
 
   //
@@ -596,10 +597,11 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::
       cell_loc_neigh, cell_loc_right_z, cell_loc_left_z, ivar, m_userdata_in, slope_type);
 
     // extrapolate conservative variables
-    uLoc[ivar] = m_userdata_in(cell_loc_neigh.cellindex(m_block_sizes), ivar, cell_loc_neigh.iOct) +
-                 KALYPSSO_NUM(0.25) * static_cast<real_t>(ix) * dudx +
-                 KALYPSSO_NUM(0.25) * static_cast<real_t>(iy) * dudy +
-                 KALYPSSO_NUM(0.25) * static_cast<real_t>(iz) * dudz;
+    uLoc[static_cast<size_t>(ivar)] =
+      m_userdata_in(cell_loc_neigh.cellindex(m_block_sizes), ivar, cell_loc_neigh.iOct) +
+      KALYPSSO_NUM(0.25) * static_cast<real_t>(ix) * dudx +
+      KALYPSSO_NUM(0.25) * static_cast<real_t>(iy) * dudy +
+      KALYPSSO_NUM(0.25) * static_cast<real_t>(iz) * dudz;
   }
 
   // read face-centered magnetic field (already prolongated !)
@@ -619,7 +621,7 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::
   //
   for (int32_t ivar = 0; ivar < nbvar_hydro; ++ivar)
   {
-    m_userdata_out(cellindex_out, ivar, iOct_out) = qLoc[ivar];
+    m_userdata_out(cellindex_out, ivar, iOct_out) = qLoc[static_cast<size_t>(ivar)];
   }
 
   //

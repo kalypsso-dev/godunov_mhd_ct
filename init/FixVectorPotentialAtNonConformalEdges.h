@@ -380,9 +380,9 @@ public:
       auto const & ivar = edge_indexes[dim];
 
       auto xyz1 = xyz;
-      xyz1[ivar] = xyz[ivar] - KALYPSSO_NUM(0.25) * dx;
+      xyz1[static_cast<size_t>(ivar)] = xyz[static_cast<size_t>(ivar)] - KALYPSSO_NUM(0.25) * dx;
       auto xyz2 = xyz;
-      xyz2[ivar] = xyz[ivar] + KALYPSSO_NUM(0.25) * dx;
+      xyz2[static_cast<size_t>(ivar)] = xyz[static_cast<size_t>(ivar)] + KALYPSSO_NUM(0.25) * dx;
 
       m_vector_potential(edge_indexes, iOct) =
         KALYPSSO_NUM(0.5) *

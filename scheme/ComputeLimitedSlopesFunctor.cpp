@@ -161,7 +161,7 @@ ComputeLimitedSlopesFunctor<dim, device_t>::slope_unsplit_scalar_mag(
     Kokkos::Array<int, dim> v;
     for (int idir = 0; idir < static_cast<int>(dim); ++idir)
     {
-      v[idir] = idir == direction ? 1 : 0;
+      v[static_cast<size_t>(idir)] = idir == direction ? 1 : 0;
     }
     return v;
   }(dir);

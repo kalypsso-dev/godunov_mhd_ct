@@ -265,8 +265,8 @@ ComputeEmfAndStoreFunctor<dim, device_t>::reconstruct_state_3d_at_edge(int32_t  
   }
   else if (edge_loc == MHDEdgeLocation::RT)
   {
-    ijk0[dir0] += 1;
-    ijk1[dir1] += 1;
+    ijk0[static_cast<size_t>(dir0)] += 1;
+    ijk1[static_cast<size_t>(dir1)] += 1;
     sign_dq0 = 1;
     sign_dq1 = 1;
     sign_b0 = 1;
@@ -274,7 +274,7 @@ ComputeEmfAndStoreFunctor<dim, device_t>::reconstruct_state_3d_at_edge(int32_t  
   }
   else if (edge_loc == MHDEdgeLocation::RB)
   {
-    ijk0[dir0] += 1;
+    ijk0[static_cast<size_t>(dir0)] += 1;
     sign_dq0 = 1;
     sign_dq1 = -1;
     sign_b0 = -1;
@@ -282,7 +282,7 @@ ComputeEmfAndStoreFunctor<dim, device_t>::reconstruct_state_3d_at_edge(int32_t  
   }
   else if (edge_loc == MHDEdgeLocation::LT)
   {
-    ijk1[dir1] += 1;
+    ijk1[static_cast<size_t>(dir1)] += 1;
     sign_dq0 = -1;
     sign_dq1 = 1;
     sign_b0 = 1;
