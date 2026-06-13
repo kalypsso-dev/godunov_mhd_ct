@@ -14,7 +14,6 @@
 #define KALYPSSO_GODUNOV_MHD_SOLVER_GODUNOV_MHD_H_
 
 #include <cstdio>
-#include <cstdbool>
 #include <cassert> // assert
 
 // shared
