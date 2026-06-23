@@ -45,6 +45,8 @@
 
 #include <kalypsso/utils/monitoring/memory_utils.h>
 
+#include <algorithm> // std::for_each
+
 namespace kalypsso
 {
 
@@ -981,42 +983,23 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
           m_hdf5_writer->write_quadrant_attribute(divBdata_host, 0, "divB", 0, local_num_quadrants);
       }
 
-      if (is_present(write_variables, std::string{ "thermal_pressure" }))
+      // deal with derived quantities
+      for (DERIVED_QUANTITY derived_var : DERIVED_QUANTITY::_values())
       {
-        const auto thermal_pressure_host =
-          get_derived_quantity_on_host(DERIVED_QUANTITY::THERMAL_PRESSURE);
+        auto name = std::string{ derived_var._to_string() };
+        // get lower case name
+        std::for_each(
+          name.begin(), name.end(), [](char & c) { c = static_cast<char>(std::tolower(c)); });
 
-        total_num_bytes += m_hdf5_writer->write_quadrant_attribute(
-          thermal_pressure_host, 0, "thermal_pressure", 0, local_num_quadrants);
+        if (is_present(write_variables, name))
+        {
+          const auto derived_quantity_host = get_derived_quantity_on_host(derived_var);
+
+          total_num_bytes += m_hdf5_writer->write_quadrant_attribute(
+            derived_quantity_host, 0, name, 0, local_num_quadrants);
+        }
       }
-
-      if (is_present(write_variables, std::string{ "magnetic_pressure" }))
-      {
-        const auto magnetic_pressure_host =
-          get_derived_quantity_on_host(DERIVED_QUANTITY::MAGNETIC_PRESSURE);
-
-        total_num_bytes += m_hdf5_writer->write_quadrant_attribute(
-          magnetic_pressure_host, 0, "magnetic_pressure", 0, local_num_quadrants);
-      }
-
-      if (is_present(write_variables, std::string{ "specific_ekin" }))
-      {
-        const auto specific_ekin_host =
-          get_derived_quantity_on_host(DERIVED_QUANTITY::SPECIFIC_EKIN);
-
-        total_num_bytes += m_hdf5_writer->write_quadrant_attribute(
-          specific_ekin_host, 0, "specific_ekin", 0, local_num_quadrants);
-      }
-
-      if (is_present(write_variables, std::string{ "local_mach_number" }))
-      {
-        const auto local_mach_number_host =
-          get_derived_quantity_on_host(DERIVED_QUANTITY::LOCAL_MACH_NUMBER);
-
-        total_num_bytes += m_hdf5_writer->write_quadrant_attribute(
-          local_mach_number_host, 0, "local_mach_number", 0, local_num_quadrants);
-      }
-    }
+    } // end if !pure_checkpoint
 
     // close the file
     m_hdf5_writer->write_footer();
@@ -1157,7 +1140,8 @@ SolverGodunovMHD<dim, device_t>::mark_cells()
 
   for (auto const & name : names)
   {
-    if (name == "thermal_pressure" or name == "magnetic_pressure")
+    const auto maybe_derived_quantity = DERIVED_QUANTITY::_from_string_nocase_nothrow(name.c_str());
+    if (*maybe_derived_quantity)
     {
       const int           ivar_to_refine = 0;
       RefineIndicatorData refine_params{ static_cast<int>(m_params.level_min),
