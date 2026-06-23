@@ -35,6 +35,9 @@ namespace godunov_mhd_ct
  * - specific kinetic energy
  * - magnetic pressure
  * - local Mach number : M =|u|/c where c is local speed of sound
+ * - velocity along X
+ * - velocity along Y
+ * - velocity along Z
  */
 // clang-format off
 BETTER_ENUM(DERIVED_QUANTITY, uint32_t,
@@ -42,7 +45,10 @@ BETTER_ENUM(DERIVED_QUANTITY, uint32_t,
             SPEED_OF_SOUND,
             SPECIFIC_EKIN,
             MAGNETIC_PRESSURE,
-            LOCAL_MACH_NUMBER
+            LOCAL_MACH_NUMBER,
+            VX,
+            VY,
+            VZ
   )
 // clang-format on
 
@@ -90,13 +96,13 @@ struct ComputeDerivedQuantities
   // ==========================================================================
   // ==========================================================================
   static DataArrayBlock_t
-  run(DataArrayBlock_t            Udata,
-      FaceDataArrayBlock_t        Bface,
-      FieldMap<core::models::MHD> fm,
-      DERIVED_QUANTITY            quantity,
-      MHDSettings const &         mhd_settings,
-      int64_t                     iOct_begin,
-      int64_t                     num_octs)
+  run(DataArrayBlock_t const &     Udata,
+      FaceDataArrayBlock_t const & Bface,
+      FieldMap<core::models::MHD>  fm,
+      DERIVED_QUANTITY             quantity,
+      MHDSettings const &          mhd_settings,
+      int64_t                      iOct_begin,
+      int64_t                      num_octs)
   {
     const auto label = std::string("compute derived quantity ") + quantity._to_string();
 
@@ -206,6 +212,25 @@ struct ComputeDerivedQuantities
 
           res(cell_index, 0, iOct) = u_norm / cs;
         }
+        else if (quantity._to_integral() == +DERIVED_QUANTITY::VX)
+        {
+          res(cell_index, 0, iOct) = qLoc[MHD::IU];
+        }
+        else if (quantity._to_integral() == +DERIVED_QUANTITY::VY)
+        {
+          res(cell_index, 0, iOct) = qLoc[MHD::IV];
+        }
+        else if (quantity._to_integral() == +DERIVED_QUANTITY::VZ)
+        {
+          if constexpr (dim == 3)
+          {
+            res(cell_index, 0, iOct) = qLoc[MHD::IW];
+          }
+          else
+          {
+            res(cell_index, 0, iOct) = ZERO_F;
+          }
+        }
       });
 
     return res;
@@ -215,38 +240,19 @@ struct ComputeDerivedQuantities
   // ==========================================================================
   // ==========================================================================
   static DataArrayBlock_t
-  run(DataArrayBlock_t            Udata,
-      FaceDataArrayBlock_t        Bface,
-      FieldMap<core::models::MHD> fm,
-      std::string                 quantity,
-      MHDSettings                 mhd_settings,
-      int64_t                     iOct_begin,
-      int64_t                     num_octs)
+  run(DataArrayBlock_t const &     Udata,
+      FaceDataArrayBlock_t const & Bface,
+      FieldMap<core::models::MHD>  fm,
+      std::string                  quantity,
+      MHDSettings const &          mhd_settings,
+      int64_t                      iOct_begin,
+      int64_t                      num_octs)
   {
-    if (quantity == "thermal_pressure")
+    auto derived_quantity = DERIVED_QUANTITY::_from_string_nocase_nothrow(quantity.c_str());
+
+    if (derived_quantity)
     {
-      return run(
-        Udata, Bface, fm, DERIVED_QUANTITY::THERMAL_PRESSURE, mhd_settings, iOct_begin, num_octs);
-    }
-    else if (quantity == "speed_of_sound")
-    {
-      return run(
-        Udata, Bface, fm, DERIVED_QUANTITY::SPEED_OF_SOUND, mhd_settings, iOct_begin, num_octs);
-    }
-    else if (quantity == "specific_ekin")
-    {
-      return run(
-        Udata, Bface, fm, DERIVED_QUANTITY::SPECIFIC_EKIN, mhd_settings, iOct_begin, num_octs);
-    }
-    else if (quantity == "magnetic_pressure")
-    {
-      return run(
-        Udata, Bface, fm, DERIVED_QUANTITY::MAGNETIC_PRESSURE, mhd_settings, iOct_begin, num_octs);
-    }
-    else if (quantity == "local_mach_number")
-    {
-      return run(
-        Udata, Bface, fm, DERIVED_QUANTITY::LOCAL_MACH_NUMBER, mhd_settings, iOct_begin, num_octs);
+      return run(Udata, Bface, fm, *derived_quantity, mhd_settings, iOct_begin, num_octs);
     }
     else
     {
