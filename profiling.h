@@ -19,8 +19,10 @@
     }
 
 #ifndef KALYPSSO_PROFILING_REGION
-#  define KALYPSSO_PROFILING_REGION(mgr, value) \
-    ProfilingTimer region_##value(mgr, ProfilingZone::value)
+#  define KALYPSSO_PROFILING_REGION_HOST(mgr, value) \
+    ProfilingTimer region_##value(mgr, ProfilingZone::value, ProfilingRegion::TIMER_HOST)
+#  define KALYPSSO_PROFILING_REGION_DEVICE(mgr, value) \
+    ProfilingTimer region_##value(mgr, ProfilingZone::value, ProfilingRegion::TIMER_DEVICE)
 #endif
 
 namespace kalypsso
@@ -44,6 +46,7 @@ BETTER_ENUM(ProfilingZone, uint32_t,
     LOAD_BALANCING_RESIZE,
   NUM,
     NUM_CFL,
+    NUM_CFL_LOCAL,
     NUM_SCHEME,
       NUM_SCHEME_CONV_PRIM,
       NUM_SCHEME_Q_GHOSTED,
@@ -85,6 +88,7 @@ private:
       ADD_CASE(LOAD_BALANCING_UPDATE_MESH,        "LOAD_BALANCING::UPDATE_MESH            ", LightBlue);
       ADD_CASE(LOAD_BALANCING_RESIZE,             "LOAD_BALANCING::RESIZE                 ", LightBlue);
       ADD_CASE(NUM_CFL,                           "NUM::CFL                               ", DarkRed);
+      ADD_CASE(NUM_CFL_LOCAL,                     "NUM::CFL_LOCAL                         ", DarkRed);
       ADD_CASE(NUM_SCHEME,                        "NUM::SCHEME                            ", FullRed);
       ADD_CASE(NUM_SCHEME_CONV_PRIM,              "NUM::SCHEME::CONV_PRIM                 ", LightRed);
       ADD_CASE(NUM_SCHEME_Q_GHOSTED,              "NUM::SCHEME::Q_GHOSTED                 ", LightRed);
@@ -109,14 +113,24 @@ private:
 
 public:
   static auto &
-  get_profiling_region(ProfilingManager & profiling_mgr, const ProfilingZone zone)
+  get_profiling_region(ProfilingManager &                profiling_mgr,
+                       const ProfilingZone               zone,
+                       ProfilingRegion::timer_location_t timer_location)
   {
     const auto [name, color] = get_name_color(zone);
-    return profiling_mgr.get_region(name, ProfilingRegion::TIMER_HOST, color);
+    return profiling_mgr.get_region(name, timer_location, color);
   }
 
   ProfilingTimer(ProfilingManager & profiling_mgr, const ProfilingZone zone)
-    : m_timer(get_profiling_region(profiling_mgr, zone))
+    : m_timer(get_profiling_region(profiling_mgr, zone, ProfilingRegion::TIMER_HOST))
+  {
+    m_timer.start();
+  }
+
+  ProfilingTimer(ProfilingManager &                profiling_mgr,
+                 const ProfilingZone               zone,
+                 ProfilingRegion::timer_location_t timer_location)
+    : m_timer(get_profiling_region(profiling_mgr, zone, timer_location))
   {
     m_timer.start();
   }
@@ -130,5 +144,7 @@ private:
 } // namespace godunov_mhd_ct
 
 } // namespace kalypsso
+
+#undef ADD_CASE
 
 #endif // KALYPSSO_GODUNOV_MHD_PROFILING_DATA_H_

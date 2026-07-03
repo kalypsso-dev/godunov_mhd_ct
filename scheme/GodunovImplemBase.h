@@ -111,7 +111,7 @@ public:
     Kokkos::fence();
 
 #ifdef KALYPSSO_CORE_USE_MPI
-    KALYPSSO_PROFILING_REGION(m_profiling_mgr, NUM_SCHEME_EXCHANGE_Q_MIRROR_GHOST);
+    KALYPSSO_PROFILING_REGION_DEVICE(m_profiling_mgr, NUM_SCHEME_EXCHANGE_Q_MIRROR_GHOST);
     this->m_mesh_ghosts_exchanger.exchange_inplace(q_ghosted_mg);
 #endif // KALYPSSO_CORE_USE_MPI
 
@@ -124,7 +124,7 @@ public:
   add_gravity_source_term(DataArrayBlock_t u_in, DataArrayBlock_t u_out, real_t dt)
   {
 
-    KALYPSSO_PROFILING_REGION(m_profiling_mgr, NUM_SCHEME_GRAVITY);
+    KALYPSSO_PROFILING_REGION_DEVICE(m_profiling_mgr, NUM_SCHEME_GRAVITY);
 
     const auto & fm = this->m_model.get_fieldmap();
 
