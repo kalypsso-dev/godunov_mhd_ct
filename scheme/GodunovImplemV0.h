@@ -102,7 +102,7 @@ public:
                  "Slope_z",
                  this->m_nbvar_mhd,
                  0)
-    , m_Fluxes("Fluxes", get_flux_block_sizes<dim>(this->m_block_sizes), this->m_nbvar_mhd, 0)
+    , m_Fluxes("Fluxes", get_flux_block_sizes<dim>(this->m_block_sizes, IX), this->m_nbvar_mhd, 0)
     , m_elec_field(this->m_block_sizes,
                    this->m_block_sizes + 2 * 2,
                    get_shift<dim>(-2),
