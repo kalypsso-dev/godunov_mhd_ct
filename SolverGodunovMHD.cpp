@@ -1073,8 +1073,8 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
 template <size_t dim, typename device_t>
 void
 SolverGodunovMHD<dim, device_t>::synchronize_mpi_ghost_data(
-  [[maybe_unused]] DataArrayBlock_t     Udata,
-  [[maybe_unused]] FaceDataArrayBlock_t Bdata)
+  [[maybe_unused]] DataArrayBlock_t const &     Udata,
+  [[maybe_unused]] FaceDataArrayBlock_t const & Bdata)
 {
 
 #ifdef KALYPSSO_CORE_USE_MPI
@@ -1092,8 +1092,8 @@ SolverGodunovMHD<dim, device_t>::synchronize_mpi_ghost_data(
 // =======================================================
 template <size_t dim, typename device_t>
 void
-SolverGodunovMHD<dim, device_t>::fill_outside_quadrants(DataArrayBlock_t     Udata,
-                                                        FaceDataArrayBlock_t Bdata)
+SolverGodunovMHD<dim, device_t>::fill_outside_quadrants(DataArrayBlock_t const &     Udata,
+                                                        FaceDataArrayBlock_t const & Bdata)
 {
 
   // assert data has expected size (in terms of number of octants/quadrants)

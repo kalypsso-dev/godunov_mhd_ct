@@ -428,7 +428,7 @@ private:
   //! synchronize MPI ghost data / only necessary when MPI is activated
   //! this will also do external border only when mesh is periodic
   void
-  synchronize_mpi_ghost_data(DataArrayBlock_t Udata, FaceDataArrayBlock_t Bdata);
+  synchronize_mpi_ghost_data(DataArrayBlock_t const & Udata, FaceDataArrayBlock_t const & Bdata);
 
   //! when mesh is not periodic, the number of outside quadrants is not zero, so we need to fill
   //! outside quadrant user data according to the border condition. This is where we apply border
@@ -437,7 +437,7 @@ private:
   //! Just to be clear, let's repeat that array m_U must be sized upon the total number of
   //! octants (owned, ghost and outside).
   void
-  fill_outside_quadrants(DataArrayBlock_t Udata, FaceDataArrayBlock_t Bdata);
+  fill_outside_quadrants(DataArrayBlock_t const & Udata, FaceDataArrayBlock_t const & Bdata);
 
   //! mark cells for refinement
   void
