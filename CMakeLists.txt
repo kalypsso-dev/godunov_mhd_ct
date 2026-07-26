@@ -21,6 +21,8 @@ set(GODUNOV_MHD_CT_SRCS
     init/InitRotor.h
     init/InitShockTube.cpp
     init/InitShockTube.h
+    models/riemann_solver_types.h
+    models/RiemannSolvers_MHD.h
     profiling.h
     scheme/AddGravitySourceTerm.cpp
     scheme/AddGravitySourceTerm.h

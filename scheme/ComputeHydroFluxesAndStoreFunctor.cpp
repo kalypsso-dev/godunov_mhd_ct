@@ -7,7 +7,7 @@
  */
 #include <godunov_mhd_ct/scheme/ComputeHydroFluxesAndStoreFunctor.h>
 
-#include <kalypsso/core/models/RiemannSolvers_MHD.h>
+#include <godunov_mhd_ct/models/RiemannSolvers_MHD.h>
 
 namespace kalypsso
 {

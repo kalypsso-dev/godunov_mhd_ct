@@ -15,9 +15,10 @@
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/FieldMap.h>
 #include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/RiemannSolvers_MHD.h>
 #include <kalypsso/core/ConformalFaceStatus.h>
 #include <kalypsso/core/AMRMeshInfo.h>
+
+#include <godunov_mhd_ct/models/RiemannSolvers_MHD.h>
 
 // utils hydro
 #include <kalypsso/core/models/mhd_utils.h>
