@@ -14,14 +14,14 @@
 #include <kalypsso/core/orchard_key_base.h>
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHDState.h>
+#include <godunov_mhd_ct/models/MHDState.h>
 #include <kalypsso/core/ConformalFaceStatus.h>
 #include <kalypsso/core/StencilHelper.h>
 #include <kalypsso/core/AMRMeshInfo.h>
 #include <kalypsso/core/ViscosityParams.h>
 
 // utils mhd
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 
 #include <type_traits>
 
@@ -58,10 +58,10 @@ public:
   using DataArrayGhostedBlock_t = DataArrayGhostedBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // makes enum Hydro::GradId available
-  using Grad = kalypsso::core::models::MHD::GradTensorId;
+  using Grad = models::MHD::GradTensorId;
 
   // access quadrant <-> orchard key (hence AMR level and quadrant size)
   using orchard_key_view_t = typename orchard_key_base_t<device_t>::view_t;
@@ -88,7 +88,7 @@ private:
   DataArrayGhostedBlock_t m_q;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! offset to first octant in flux array where to write
   const int32_t m_iOct_flux_offset;
@@ -125,7 +125,7 @@ public:
                                       AMRMeshInfo const &             amr_mesh_info,
                                       DataArrayBlock_t const &        fluxes,
                                       DataArrayGhostedBlock_t const & q_ghosted,
-                                      FieldMap<core::models::MHD>     fm,
+                                      FieldMap<models::MHD>           fm,
                                       int32_t                         iOct_flux_offset,
                                       int32_t                         num_quads,
                                       int                             direction,
@@ -143,7 +143,7 @@ public:
         AMRMeshInfo const &             amr_mesh_info,
         DataArrayBlock_t const &        fluxes,
         DataArrayGhostedBlock_t const & q_ghosted,
-        FieldMap<core::models::MHD>     fm,
+        FieldMap<models::MHD>           fm,
         int32_t                         iOct_flux_offset,
         int32_t                         num_quads,
         int                             direction,

@@ -755,7 +755,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
                                         0,
                                         num_octants,
                                         m_mesh_map->orchard_keys(),
-                                        m_model.get_fieldmap()[core::models::MHD::ID],
+                                        m_model.get_fieldmap()[models::MHD::ID],
                                         "density",
                                         m_config_map,
                                         m_par_env,
@@ -765,7 +765,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
                                         0,
                                         num_octants,
                                         m_mesh_map->orchard_keys(),
-                                        m_model.get_fieldmap()[core::models::MHD::IE],
+                                        m_model.get_fieldmap()[models::MHD::IE],
                                         "total_energy",
                                         m_config_map,
                                         m_par_env,
@@ -775,7 +775,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
                                         0,
                                         num_octants,
                                         m_mesh_map->orchard_keys(),
-                                        m_model.get_fieldmap()[core::models::MHD::IU],
+                                        m_model.get_fieldmap()[models::MHD::IU],
                                         "rho_u",
                                         m_config_map,
                                         m_par_env,
@@ -785,7 +785,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
                                         0,
                                         num_octants,
                                         m_mesh_map->orchard_keys(),
-                                        m_model.get_fieldmap()[core::models::MHD::IV],
+                                        m_model.get_fieldmap()[models::MHD::IV],
                                         "rho_v",
                                         m_config_map,
                                         m_par_env,
@@ -797,7 +797,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
                                           0,
                                           num_octants,
                                           m_mesh_map->orchard_keys(),
-                                          m_model.get_fieldmap()[core::models::MHD::IW],
+                                          m_model.get_fieldmap()[models::MHD::IW],
                                           "rho_w",
                                           m_config_map,
                                           m_par_env,
@@ -925,15 +925,14 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
     // write user data (all enabled field)
     for (auto & iter : id2names)
     {
-      auto varId = static_cast<typename core::models::MHD::VarId>(iter.first);
+      auto varId = static_cast<typename models::MHD::VarId>(iter.first);
 
       // get variables string name
       const auto varName = id2names.at(varId);
 
       if (is_present(write_variables, varName) or should_do_checkpoint())
       {
-        if (varId != core::models::MHD::IBX and varId != core::models::MHD::IBY and
-            varId != core::models::MHD::IBZ)
+        if (varId != models::MHD::IBX and varId != models::MHD::IBY and varId != models::MHD::IBZ)
         {
           total_num_bytes += m_hdf5_writer->write_quadrant_attribute(
             m_Uhost, fm[varId], varName, 0, local_num_quadrants);
@@ -1179,13 +1178,13 @@ SolverGodunovMHD<dim, device_t>::mark_cells()
         auto const id2names = m_model.get_id2names_map();
         for (auto & iter : id2names)
         {
-          auto const varId = static_cast<typename core::models::MHD::VarId>(iter.first);
+          auto const varId = static_cast<typename models::MHD::VarId>(iter.first);
           auto const varName = id2names.at(varId);
           if (varName == name)
             return varId;
         }
         // default value (density, aka rho)
-        return ::kalypsso::core::models::MHD::ID;
+        return models::MHD::ID;
       }();
 
       RefineIndicatorData refine_params{ static_cast<int>(m_params.level_min),

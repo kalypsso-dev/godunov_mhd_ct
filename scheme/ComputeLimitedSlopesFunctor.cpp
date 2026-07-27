@@ -21,7 +21,7 @@ ComputeLimitedSlopesFunctor<dim, device_t>::ComputeLimitedSlopesFunctor(
   DataArrayGhostedBlock_t const & slopes_x,
   DataArrayGhostedBlock_t const & slopes_y,
   DataArrayGhostedBlock_t const & slopes_z,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         iOct_begin,
   int32_t                         num_octants,
   MHDSettings const &             mhd_settings)
@@ -44,7 +44,7 @@ ComputeLimitedSlopesFunctor<dim, device_t>::apply_on_group(
   DataArrayGhostedBlock_t const & slopes_x,
   DataArrayGhostedBlock_t const & slopes_y,
   DataArrayGhostedBlock_t const & slopes_z,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         num_quads,
   MHDSettings const &             mhd_settings)
 {
@@ -76,7 +76,7 @@ ComputeLimitedSlopesFunctor<dim, device_t>::apply_on_ghosts(
   DataArrayGhostedBlock_t const & slopes_x,
   DataArrayGhostedBlock_t const & slopes_y,
   DataArrayGhostedBlock_t const & slopes_z,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         num_mirrors,
   int32_t                         num_ghosts,
   MHDSettings const &             mhd_settings)

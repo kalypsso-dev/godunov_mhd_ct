@@ -14,13 +14,13 @@
 #include <kalypsso/core/orchard_key_base.h>
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHDState.h>
+#include <godunov_mhd_ct/models/MHDState.h>
 #include <kalypsso/core/ConformalFaceStatus.h>
 #include <kalypsso/core/StencilHelper.h>
 #include <kalypsso/core/AMRMeshInfo.h>
 
 // utils hydro
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 
 #include <type_traits>
 
@@ -70,7 +70,7 @@ public:
   using FaceDataArrayBlock_t = FaceDataArrayBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   template <size_t _dim>
   using offsets_t = coord_t<_dim, real_t>;
@@ -101,7 +101,7 @@ private:
   DataArrayBlock_t m_Fluxes;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! flux direction (IX, IY or IZ)
   int m_direction;
@@ -139,7 +139,7 @@ public:
                                          DataArrayBlock_t const &           u_out,
                                          FaceDataArrayBlock_t const &       B_out,
                                          DataArrayBlock_t const &           fluxes,
-                                         FieldMap<core::models::MHD>        fm,
+                                         FieldMap<models::MHD>        fm,
                                          int                                direction,
                                          MHDSettings const &                mhd_settings,
                                          real_t                             dt);
@@ -158,7 +158,7 @@ public:
         DataArrayBlock_t const &           Uout,
         FaceDataArrayBlock_t const &       Bout,
         DataArrayBlock_t const &           fluxes,
-        FieldMap<core::models::MHD>        fm,
+        FieldMap<models::MHD>        fm,
         int                                direction,
         brick_size_t<dim> const &          brick_sizes,
         Kokkos::Array<bool, dim> const &   is_brick_periodic,

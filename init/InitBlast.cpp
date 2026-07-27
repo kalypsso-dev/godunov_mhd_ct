@@ -24,7 +24,7 @@ InitBlastDataFunctor<dim, device_t>::InitBlastDataFunctor(orchard_key_view_t<dev
                                                           int32_t           local_num_octants,
                                                           HydroParams       params,
                                                           ConfigMap const & config_map,
-                                                          FieldMap<core::models::MHD> fm,
+                                                          FieldMap<models::MHD> fm,
                                                           brick_size_t<dim>           brick_sizes,
                                                           DataArrayBlock_t            Udata,
                                                           FaceDataArrayBlock_t        Bface)
@@ -50,7 +50,7 @@ InitBlastDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEnv const & 
                                            int32_t                              local_num_octants,
                                            HydroParams                          params,
                                            ConfigMap const &                    config_map,
-                                           FieldMap<core::models::MHD>          fm,
+                                           FieldMap<models::MHD>          fm,
                                            brick_size_t<dim>                    brick_sizes,
                                            DataArrayBlock_t                     Udata,
                                            FaceDataArrayBlock_t                 Bface)
@@ -113,11 +113,11 @@ InitBlastDataFunctor<dim, device_t>::operator()(TagInitHydroVar const &,
   const auto iOct = global_index / m_nbCellsPerLeaf;
   const auto cell_index = global_index - iOct * m_nbCellsPerLeaf;
 
-  constexpr auto ID = core::models::MHD::ID;
-  constexpr auto IE = core::models::MHD::IE;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  constexpr auto IE = models::MHD::IE;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // blast problem parameters
   const real_t blast_radius = m_bParams.blast_radius;
@@ -291,7 +291,7 @@ KOKKOS_INLINE_FUNCTION void
 InitBlastDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy const &,
                                                 const int32_t & global_index) const
 {
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto IE = models::MHD::IE;
 
   // convert global index into
   // - octant id
@@ -345,7 +345,7 @@ InitBlastRefineFunctor<dim, device_t>::InitBlastRefineFunctor(
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>  fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -373,7 +373,7 @@ InitBlastRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t> orchar
                                              int32_t                      local_num_octants,
                                              ConfigMap const &            config_map,
                                              HydroParams                  params,
-                                             FieldMap<core::models::MHD>  fm,
+                                             FieldMap<models::MHD>  fm,
                                              brick_size_t<dim>            brick_sizes,
                                              DataArrayBlock_t             Udata,
                                              FaceDataArrayBlock_t         Bface,
@@ -684,7 +684,7 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
         if constexpr (dim == 3)
           d2 += (xyz[IZ] - blast_center_z) * (xyz[IZ] - blast_center_z);
 
-        constexpr auto IP = core::models::MHD::IP;
+        constexpr auto IP = models::MHD::IP;
 
         if (d2 < radius2)
         {

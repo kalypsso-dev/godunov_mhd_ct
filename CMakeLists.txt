@@ -21,6 +21,14 @@ set(GODUNOV_MHD_CT_SRCS
     init/InitRotor.h
     init/InitShockTube.cpp
     init/InitShockTube.h
+    models/HydroSettings.cpp
+    models/HydroSettings.h
+    models/MHD.cpp
+    models/MHD.h
+    models/MHDSettings.cpp
+    models/MHDSettings.h
+    models/MHDState.h
+    models/mhd_utils.h
     models/riemann_solver_types.h
     models/RiemannSolvers_MHD.h
     profiling.h

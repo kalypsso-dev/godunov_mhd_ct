@@ -25,7 +25,7 @@ InitKelvinHelmholtzDataFunctor<dim, device_t>::InitKelvinHelmholtzDataFunctor(
   int32_t                      local_num_octants,
   HydroParams                  params,
   ConfigMap const &            config_map,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>  fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface)
@@ -53,7 +53,7 @@ InitKelvinHelmholtzDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEn
                                                      int32_t                      local_num_octants,
                                                      HydroParams                  params,
                                                      ConfigMap const &            config_map,
-                                                     FieldMap<core::models::MHD>  fm,
+                                                     FieldMap<models::MHD>  fm,
                                                      brick_size_t<dim>            brick_sizes,
                                                      DataArrayBlock_t             Udata,
                                                      FaceDataArrayBlock_t         Bface)
@@ -104,11 +104,11 @@ InitKelvinHelmholtzDataFunctor<dim, device_t>::operator()(TagInitHydroVar const 
 
   const auto block_sizes = m_Udata.block_size();
 
-  constexpr auto ID = core::models::MHD::ID;
-  constexpr auto IP = core::models::MHD::IP;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  constexpr auto IP = models::MHD::IP;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // Kelvin Helmholtz problem parameters
   const auto d_in = m_khParams.d_in;
@@ -419,7 +419,7 @@ KOKKOS_INLINE_FUNCTION void
 InitKelvinHelmholtzDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy const &,
                                                           const int32_t & global_index) const
 {
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto IE = models::MHD::IE;
 
   // convert global index into
   // - octant id
@@ -473,7 +473,7 @@ InitKelvinHelmholtzRefineFunctor<dim, device_t>::InitKelvinHelmholtzRefineFuncto
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>  fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -502,7 +502,7 @@ InitKelvinHelmholtzRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device
                                                        int32_t           local_num_octants,
                                                        ConfigMap const & config_map,
                                                        HydroParams       params,
-                                                       FieldMap<core::models::MHD> fm,
+                                                       FieldMap<models::MHD> fm,
                                                        brick_size_t<dim>           brick_sizes,
                                                        DataArrayBlock_t            Udata,
                                                        FaceDataArrayBlock_t        Bface,

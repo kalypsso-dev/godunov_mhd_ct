@@ -14,11 +14,11 @@
 #include <kalypsso/core/orchard_key_base.h>
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHDState.h>
+#include <godunov_mhd_ct/models/MHDState.h>
 #include <kalypsso/core/AMRMeshInfo.h>
 
 // utils mhd
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 
 #include <type_traits>
 

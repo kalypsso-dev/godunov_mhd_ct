@@ -24,7 +24,6 @@
 #include <kalypsso/core/AMRmesh.h>
 #include <kalypsso/core/MeshMap.h>
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHD.h>
 #include <kalypsso/utils/mpi/ParallelEnv.h>
 #include <kalypsso/core/utils_block.h>
 #include <kalypsso/core/TimeIntegratorConfig.h>
@@ -32,6 +31,7 @@
 #include <kalypsso/utils/monitoring/ProfilingManager.h>
 
 // godunov implementation details
+#include <godunov_mhd_ct/models/MHD.h>
 #include <godunov_mhd_ct/scheme/GodunovImplemBase.h>
 #include <godunov_mhd_ct/scheme/GodunovImplemV0.h>
 // #include <godunov_mhd_ct/scheme/GodunovImplemV1.h>
@@ -220,7 +220,7 @@ public:
     return this->m_config_map;
   }
 
-  core::models::MHD const &
+  models::MHD const &
   model() const
   {
     return m_model;
@@ -299,7 +299,7 @@ private:
   Kokkos::Array<bool, dim> m_is_brick_periodic;
 
   //! model
-  core::models::MHD m_model;
+  models::MHD m_model;
 
   //! MHD parameters
   const MHDSettings m_mhd_settings;

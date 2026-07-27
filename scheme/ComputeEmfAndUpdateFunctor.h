@@ -14,14 +14,14 @@
 #include <kalypsso/core/orchard_key_base.h>
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHDState.h>
+#include <godunov_mhd_ct/models/MHDState.h>
 #include <kalypsso/core/ConformalFaceStatus.h>
 #include <kalypsso/core/AMRMeshInfo.h>
 
 #include <godunov_mhd_ct/models/RiemannSolvers_MHD.h>
 
 // utils hydro
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 
 #include <type_traits>
 
@@ -67,7 +67,7 @@ public:
   using FaceDataArrayBlock_t = FaceDataArrayBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   template <size_t _dim>
   using offsets_t = coord_t<_dim, real_t>;
@@ -114,7 +114,7 @@ private:
   DataArrayGhostedBlock_t m_sFaceMag;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! starting octant id
   const int32_t m_iOct_begin;
@@ -180,7 +180,7 @@ public:
                              DataArrayGhostedBlock_t const &     slopes_y,
                              DataArrayGhostedBlock_t const &     slopes_z,
                              DataArrayGhostedBlock_t const &     sFaceMag,
-                             FieldMap<core::models::MHD>         fm,
+                             FieldMap<models::MHD>         fm,
                              int32_t                             iOct_begin,
                              int32_t                             num_octants,
                              Kokkos::Array<uint8_t, dim> const & brick_sizes,
@@ -207,7 +207,7 @@ public:
                  DataArrayGhostedBlock_t const &     slopes_y,
                  DataArrayGhostedBlock_t const &     slopes_z,
                  DataArrayGhostedBlock_t const &     sFaceMag,
-                 FieldMap<core::models::MHD>         fm,
+                 FieldMap<models::MHD>         fm,
                  int32_t                             iOct_begin,
                  int32_t                             num_octants,
                  Kokkos::Array<uint8_t, dim> const & brick_sizes,
@@ -234,7 +234,7 @@ public:
                   DataArrayGhostedBlock_t const &     slopes_y,
                   DataArrayGhostedBlock_t const &     slopes_z,
                   DataArrayGhostedBlock_t const &     sFaceMag,
-                  FieldMap<core::models::MHD>         fm,
+                  FieldMap<models::MHD>         fm,
                   Kokkos::Array<uint8_t, dim> const & brick_sizes,
                   Kokkos::Array<bool, dim> const &    is_brick_periodic,
                   MHDSettings const &                 mhd_settings,

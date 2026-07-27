@@ -13,13 +13,13 @@
 #include <kalypsso/core/FieldMap.h>
 #include <kalypsso/core/orchard_key_base.h>
 
-// hydro utils (conservative versus primitive variable, equation of state, ...)
-#include <kalypsso/core/models/MHDState.h>
-// #include <kalypsso/core/models/mhd_utils.h>
-#include <kalypsso/core/models/mhd_utils.h>
 #include <kalypsso/core/utils_block.h>
 #include <kalypsso/core/GravityField.h>
 #include <kalypsso/core/ViscosityParams.h>
+
+// hydro utils (conservative versus primitive variable, equation of state, ...)
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 
 namespace kalypsso
 {
@@ -57,7 +57,7 @@ public:
   using exec_space = typename device_t::execution_space;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   //! global cell index
   using index_t = int32_t;
@@ -76,7 +76,7 @@ private:
   ViscosityParams m_viscosity_params;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! block sizes
   block_size_t<dim> m_block_sizes;
@@ -104,7 +104,7 @@ public:
                       orchard_key_view_t const &       orchard_keys,
                       int32_t                          local_num_octants,
                       MHDSettings const &              mhd_settings,
-                      FieldMap<core::models::MHD>      fm,
+                      FieldMap<models::MHD>            fm,
                       block_size_t<dim> const &        block_sizes,
                       DataArrayBlock_t const &         Udata,
                       FaceDataArrayBlock_t const &     Bface,
@@ -130,7 +130,7 @@ public:
         orchard_key_view_t const &   orchard_keys,
         int32_t                      local_num_octants,
         MHDSettings const &          mhd_settings,
-        FieldMap<core::models::MHD>  fm,
+        FieldMap<models::MHD>        fm,
         block_size_t<dim> const &    block_sizes,
         DataArrayBlock_t const &     Udata,
         FaceDataArrayBlock_t const & Bface,

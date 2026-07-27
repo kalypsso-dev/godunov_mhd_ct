@@ -26,7 +26,7 @@ ReadFluxesAndConservativeUpdateFunctor<dim, device_t>::ReadFluxesAndConservative
   DataArrayBlock_t const &           u_out,
   FaceDataArrayBlock_t const &       b_out,
   DataArrayBlock_t const &           fluxes,
-  FieldMap<core::models::MHD>        fm,
+  FieldMap<models::MHD>        fm,
   int                                direction,
   MHDSettings const &                mhd_settings,
   real_t                             dt)
@@ -60,7 +60,7 @@ ReadFluxesAndConservativeUpdateFunctor<dim, device_t>::apply(
   DataArrayBlock_t const &           Uout,
   FaceDataArrayBlock_t const &       Bout,
   DataArrayBlock_t const &           fluxes,
-  FieldMap<core::models::MHD>        fm,
+  FieldMap<models::MHD>        fm,
   int                                direction,
   brick_size_t<dim> const &          brick_sizes,
   Kokkos::Array<bool, dim> const &   is_brick_periodic,

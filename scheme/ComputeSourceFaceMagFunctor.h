@@ -14,9 +14,9 @@
 #include <kalypsso/core/orchard_key_base.h>
 
 // hydro utils (conservative versus primitive variable, equation of state, ...)
-#include <kalypsso/core/models/MHD.h>
-#include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/MHD.h>
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 #include <kalypsso/core/utils_block.h>
 
 namespace kalypsso
@@ -59,7 +59,7 @@ public:
   using DataArrayGhostedBlock_t = DataArrayGhostedBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
 private:
   //! a ghosted block array of  source term for mag field (ghost width is 1)
@@ -71,7 +71,7 @@ private:
   DataArrayGhostedBlock_t m_elec_field;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! starting octant id
   const int32_t m_iOct_begin;
@@ -123,7 +123,7 @@ public:
    */
   ComputeSourceFaceMagFunctor(DataArrayGhostedBlock_t const & sFaceMag,
                               DataArrayGhostedBlock_t const & elec_field,
-                              FieldMap<core::models::MHD>     fm,
+                              FieldMap<models::MHD>           fm,
                               int32_t                         iOct_begin,
                               int32_t                         num_octants,
                               real_t                          dt,
@@ -138,7 +138,7 @@ public:
   static void
   apply_on_group(DataArrayGhostedBlock_t const & sFaceMag,
                  DataArrayGhostedBlock_t const & elec_field,
-                 FieldMap<core::models::MHD>     fm,
+                 FieldMap<models::MHD>           fm,
                  int32_t                         num_octants,
                  real_t                          dt,
                  ConfigMap const &               config_map,
@@ -152,7 +152,7 @@ public:
   static void
   apply_on_ghosts(DataArrayGhostedBlock_t const & sFaceMag,
                   DataArrayGhostedBlock_t const & elec_field,
-                  FieldMap<core::models::MHD>     fm,
+                  FieldMap<models::MHD>           fm,
                   int32_t                         num_mirrors,
                   int32_t                         num_ghosts,
                   real_t                          dt,

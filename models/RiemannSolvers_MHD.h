@@ -12,12 +12,12 @@
 #include <math.h>
 
 #include <kalypsso/core/HydroParams.h>
-#include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/MHDSettings.h>
-#include <kalypsso/core/models/mhd_utils.h>
 #include <kalypsso/core/real_type.h>
 
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 #include <godunov_mhd_ct/models/riemann_solver_types.h>
+#include <godunov_mhd_ct/models/MHDSettings.h>
 
 namespace kalypsso
 {
@@ -49,7 +49,7 @@ riemann_hll(MHDStateCell &      qleft,
 {
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // enforce continuity of normal component
   real_t bx_mean = HALF_F * (qleft[MHD::IA] + qright[MHD::IA]);
@@ -60,12 +60,12 @@ riemann_hll(MHDStateCell &      qleft,
   MHDStateCell uleft, fleft;
   MHDStateCell uright, fright;
 
-  core::models::mhd::find_mhd_flux(qleft, uleft, fleft, settings);
-  core::models::mhd::find_mhd_flux(qright, uright, fright, settings);
+  models::mhd::find_mhd_flux(qleft, uleft, fleft, settings);
+  models::mhd::find_mhd_flux(qright, uright, fright, settings);
 
   // find the largest eigenvalue in the normal direction to the interface
-  real_t cfleft = core::models::mhd::find_speed_fast<IX>(qleft, settings);
-  real_t cfright = core::models::mhd::find_speed_fast<IX>(qright, settings);
+  real_t cfleft = models::mhd::find_speed_fast<IX>(qleft, settings);
+  real_t cfright = models::mhd::find_speed_fast<IX>(qright, settings);
 
   real_t vleft = qleft[MHD::IU];
   real_t vright = qright[MHD::IU];
@@ -124,7 +124,7 @@ riemann_llf(MHDStateCell &      qleft,
 {
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // enforce continuity of normal component
   real_t bx_mean = HALF_F * (qleft[MHD::IA] + qright[MHD::IA]);
@@ -134,16 +134,16 @@ riemann_llf(MHDStateCell &      qleft,
   MHDStateCell uleft, fleft;
   MHDStateCell uright, fright;
 
-  core::models::mhd::find_mhd_flux(qleft, uleft, fleft, settings);
-  core::models::mhd::find_mhd_flux(qright, uright, fright, settings);
+  models::mhd::find_mhd_flux(qleft, uleft, fleft, settings);
+  models::mhd::find_mhd_flux(qright, uright, fright, settings);
 
   // compute mean flux
   for (uint32_t iVar = 0; iVar < MHDStateCell::size(); iVar++)
     flux[iVar] = (fleft[iVar] + fright[iVar]) / 2;
 
   // find the largest eigenvalue in the normal direction to the interface
-  real_t cleft = core::models::mhd::find_speed_info(qleft, settings);
-  real_t cright = core::models::mhd::find_speed_info(qright, settings);
+  real_t cleft = models::mhd::find_speed_info(qleft, settings);
+  real_t cright = models::mhd::find_speed_info(qright, settings);
 
   real_t vel_info = fmax(cleft, cright);
 
@@ -169,7 +169,7 @@ riemann_hllc(MHDStateCell const & qleft,
              MHDSettings const &  settings)
 {
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // UNUSED(qgdnv);
 
@@ -317,7 +317,7 @@ riemann_hlld(MHDStateCell &      qleft,
 {
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // Constants
   const real_t gamma0 = settings.hydro.gamma0;
@@ -370,8 +370,8 @@ riemann_hlld(MHDStateCell &      qleft,
   real_t vdotbr = ur * a + vr * br + wr * cr;
 
   // find the largest eigenvalues in the normal direction to the interface
-  real_t cfastl = core::models::mhd::find_speed_fast<IX>(qleft, settings);
-  real_t cfastr = core::models::mhd::find_speed_fast<IX>(qright, settings);
+  real_t cfastl = models::mhd::find_speed_fast<IX>(qleft, settings);
+  real_t cfastr = models::mhd::find_speed_fast<IX>(qright, settings);
 
   // compute hll wave speed
   real_t sl = fmin(ul, ur) - fmax(cfastl, cfastr);
@@ -632,7 +632,7 @@ mag_riemann2d_hlld(const MHDStateCell (&qLLRR)[4], real_t eLLRR[4], MHDSettings 
 {
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // alias reference to input arrays
   const MHDStateCell & qLL = qLLRR[ILL];
@@ -679,22 +679,22 @@ mag_riemann2d_hlld(const MHDStateCell (&qLLRR)[4], real_t eLLRR[4], MHDSettings 
   const real_t & cRR = qRR[MHD::IC];
 
   // Compute 4 fast magnetosonic velocity relative to x direction
-  real_t cFastLLx = core::models::mhd::find_speed_fast<IX>(qLL, settings);
-  real_t cFastLRx = core::models::mhd::find_speed_fast<IX>(qLR, settings);
-  real_t cFastRLx = core::models::mhd::find_speed_fast<IX>(qRL, settings);
-  real_t cFastRRx = core::models::mhd::find_speed_fast<IX>(qRR, settings);
+  real_t cFastLLx = models::mhd::find_speed_fast<IX>(qLL, settings);
+  real_t cFastLRx = models::mhd::find_speed_fast<IX>(qLR, settings);
+  real_t cFastRLx = models::mhd::find_speed_fast<IX>(qRL, settings);
+  real_t cFastRRx = models::mhd::find_speed_fast<IX>(qRR, settings);
 
   // Compute 4 fast magnetosonic velocity relative to y direction
-  real_t cFastLLy = core::models::mhd::find_speed_fast<IY>(qLL, settings);
-  real_t cFastLRy = core::models::mhd::find_speed_fast<IY>(qLR, settings);
-  real_t cFastRLy = core::models::mhd::find_speed_fast<IY>(qRL, settings);
-  real_t cFastRRy = core::models::mhd::find_speed_fast<IY>(qRR, settings);
+  real_t cFastLLy = models::mhd::find_speed_fast<IY>(qLL, settings);
+  real_t cFastLRy = models::mhd::find_speed_fast<IY>(qLR, settings);
+  real_t cFastRLy = models::mhd::find_speed_fast<IY>(qRL, settings);
+  real_t cFastRRy = models::mhd::find_speed_fast<IY>(qRR, settings);
 
   // TODO : write a find_speed that computes the 2 speeds together (in
   // a single routine -> factorize computation of cFastLLx and cFastLLy
 
-  using core::models::mhd::FMIN4;
-  using core::models::mhd::FMAX4;
+  using models::mhd::FMIN4;
+  using models::mhd::FMAX4;
 
   real_t SL = FMIN4(uLL, uLR, uRL, uRR) - FMAX4(cFastLLx, cFastLRx, cFastRLx, cFastRRx);
   real_t SR = FMAX4(uLL, uLR, uRL, uRR) + FMAX4(cFastLLx, cFastLRx, cFastRLx, cFastRRx);
@@ -763,7 +763,7 @@ mag_riemann2d_hlld(const MHDStateCell (&qLLRR)[4], real_t eLLRR[4], MHDSettings 
   real_t EstarRRy = uRR * bRR - vstar * AstarRR;
   real_t EstarRR = ustar * BstarRR - vstar * AstarRR;
 
-  using core::models::mhd::FMAX5;
+  using models::mhd::FMAX5;
 
   real_t calfvenL = FMAX5(fabs(aLR) / sqrt(rstarLRx),
                           fabs(AstarLR) / sqrt(rstarLR),
@@ -895,7 +895,7 @@ compute_emf(MHDStateCell (&qEdge)[4],
 {
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // define alias reference to input arrays
   MHDStateCell & qRT = qEdge[IRT];

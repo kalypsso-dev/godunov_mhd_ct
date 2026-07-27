@@ -20,7 +20,7 @@ ComputeDtMHDFunctor<dim, device_t>::ComputeDtMHDFunctor(
   orchard_key_view_t const &       orchard_keys,
   int32_t                          local_num_octants,
   MHDSettings const &              mhd_settings,
-  FieldMap<core::models::MHD>      fm,
+  FieldMap<models::MHD>            fm,
   block_size_t<dim> const &        block_sizes,
   DataArrayBlock_t const &         Udata,
   FaceDataArrayBlock_t const &     Bface,
@@ -47,7 +47,7 @@ ComputeDtMHDFunctor<dim, device_t>::apply(ConfigMap const &            config_ma
                                           orchard_key_view_t const &   orchard_keys,
                                           int32_t                      local_num_octants,
                                           MHDSettings const &          mhd_settings,
-                                          FieldMap<core::models::MHD>  fm,
+                                          FieldMap<models::MHD>        fm,
                                           block_size_t<dim> const &    block_sizes,
                                           DataArrayBlock_t const &     Udata,
                                           FaceDataArrayBlock_t const & Bface,
@@ -127,10 +127,10 @@ ComputeDtMHDFunctor<dim, device_t>::compute_cfl(int32_t const & iOct,
   }
 
   // compute primitive variables and speed of sound in current cell
-  const auto qLoc = core::models::mhd::computePrimitives(uLoc, m_mhd_settings);
+  const auto qLoc = models::mhd::compute_primitives(uLoc, m_mhd_settings);
 
   // compute fastest information speeds
-  const auto v = core::models::mhd::find_speed_info<dim>(qLoc, m_mhd_settings);
+  const auto v = models::mhd::find_speed_info<dim>(qLoc, m_mhd_settings);
 
   // update cfl
   if constexpr (dim == 2)
@@ -196,10 +196,10 @@ ComputeDtMHDFunctor<dim, device_t>::compute_cfl_with_gravity(int32_t const & iOc
   }
 
   // compute primitive variables and speed of sound in current cell
-  const auto qLoc = core::models::mhd::computePrimitives(uLoc, m_mhd_settings);
+  const auto qLoc = models::mhd::compute_primitives(uLoc, m_mhd_settings);
 
   // compute fastest information speeds
-  const auto v = core::models::mhd::find_speed_info<dim>(qLoc, m_mhd_settings);
+  const auto v = models::mhd::find_speed_info<dim>(qLoc, m_mhd_settings);
 
   // compute square
   real_t v2 = v[IX] * v[IX] + v[IY] * v[IY];

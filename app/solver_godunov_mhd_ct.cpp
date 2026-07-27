@@ -132,11 +132,11 @@ run_simulation(ParallelEnv const &       par_env,
 
     {
       const auto cell_var_ids = std::vector<int32_t>{
-        solver_mhd->model().get_fieldmap()[core::models::MHD::ID],
-        solver_mhd->model().get_fieldmap()[core::models::MHD::IE],
-        solver_mhd->model().get_fieldmap()[core::models::MHD::IU],
-        solver_mhd->model().get_fieldmap()[core::models::MHD::IV],
-        solver_mhd->model().get_fieldmap()[core::models::MHD::IW],
+        solver_mhd->model().get_fieldmap()[godunov_mhd_ct::models::MHD::ID],
+        solver_mhd->model().get_fieldmap()[godunov_mhd_ct::models::MHD::IE],
+        solver_mhd->model().get_fieldmap()[godunov_mhd_ct::models::MHD::IU],
+        solver_mhd->model().get_fieldmap()[godunov_mhd_ct::models::MHD::IV],
+        solver_mhd->model().get_fieldmap()[godunov_mhd_ct::models::MHD::IW],
       };
 
       const auto cell_var_names = std::vector<std::string>{ "rho", "etot", "rhou", "rhov", "rhow" };

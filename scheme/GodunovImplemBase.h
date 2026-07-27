@@ -19,9 +19,11 @@
 #include <kalypsso/core/MeshMap.h>
 #include <kalypsso/core/config_utils.h> // for get_block_sizes
 
-#include <kalypsso/core/models/MHD.h>
-#include <kalypsso/core/models/MHDState.h>
 #include <kalypsso/core/ViscosityParams.h>
+
+#include <godunov_mhd_ct/models/MHD.h>
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/MHDSettings.h>
 
 #include <kalypsso/utils/monitoring/ProfilingManager.h>
 
@@ -184,7 +186,7 @@ public:
 #endif // KALYPSSO_CORE_USE_MPI
 
   //! model
-  core::models::MHD m_model;
+  models::MHD m_model;
 
   //! viscosity parameter
   ViscosityParams m_viscosity;

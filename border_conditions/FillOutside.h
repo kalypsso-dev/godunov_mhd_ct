@@ -23,7 +23,7 @@
 #include <kalypsso/core/mesh_utils.h> // for Face::face_t
 #include <kalypsso/core/AMRMeshInfo.h>
 
-#include <kalypsso/core/models/MHD.h>
+#include <godunov_mhd_ct/models/MHD.h>
 
 #include <../better-enums/enum.h>
 
@@ -109,7 +109,7 @@ public:
   using FaceDataArrayBlock_t = FaceDataArrayBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   using bc_array_t = BorderConditionsConfig<BC_MHD>::bc_array_t<dim>;
 
@@ -130,14 +130,14 @@ public:
    * \param[in] config_map application parameter map
    */
   static void
-  apply(DataArrayBlock_t const &            hydro,
-        FaceDataArrayBlock_t const &        Bface,
-        AMRMeshInfo const &                 amr_mesh_info,
-        orchard_key_view_t const &          orchard_keys,
-        amr_hashmap_t const &               amr_hashmap,
-        FieldMap<core::models::MHD> const & fm,
-        ConfigMap const &                   config_map,
-        ParallelEnv const &                 par_env);
+  apply(DataArrayBlock_t const &      hydro,
+        FaceDataArrayBlock_t const &  Bface,
+        AMRMeshInfo const &           amr_mesh_info,
+        orchard_key_view_t const &    orchard_keys,
+        amr_hashmap_t const &         amr_hashmap,
+        FieldMap<models::MHD> const & fm,
+        ConfigMap const &             config_map,
+        ParallelEnv const &           par_env);
 
   // ==============================================================
   // ==============================================================
@@ -195,14 +195,14 @@ private:
    *
    *
    */
-  FillOutsideCellFunctor(DataArrayBlock_t const &            hydro,
-                         FaceDataArrayBlock_t const &        Bface,
-                         AMRMeshInfo const &                 amr_mesh_info,
-                         orchard_key_view_t const &          orchard_keys,
-                         amr_hashmap_t const &               amr_hashmap,
-                         FieldMap<core::models::MHD> const & fm,
-                         ConfigMap const &                   config_map,
-                         ParallelEnv const &                 par_env);
+  FillOutsideCellFunctor(DataArrayBlock_t const &      hydro,
+                         FaceDataArrayBlock_t const &  Bface,
+                         AMRMeshInfo const &           amr_mesh_info,
+                         orchard_key_view_t const &    orchard_keys,
+                         amr_hashmap_t const &         amr_hashmap,
+                         FieldMap<models::MHD> const & fm,
+                         ConfigMap const &             config_map,
+                         ParallelEnv const &           par_env);
 
   //! a block data array (no ghosts, sizes= bx,by,bz) of cell-centered hydro variables
   DataArrayBlock_t m_hydro;
@@ -222,7 +222,7 @@ private:
   amr_hashmap_t m_amr_hashmap_device;
 
   //! Variables to index mapping
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! p4est brick connectivity sizes
   const brick_size_t<dim> m_brick_size;
