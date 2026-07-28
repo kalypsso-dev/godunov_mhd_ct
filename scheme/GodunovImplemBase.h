@@ -94,17 +94,17 @@ public:
   total_mem_size_in_bytes() = 0;
 
   virtual void
-  do_time_step(DataArrayBlock_t     U,
-               DataArrayBlock_t     U2,
-               FaceDataArrayBlock_t Bface,
-               FaceDataArrayBlock_t Bface2,
-               real_t               dt) = 0;
+  do_time_step(DataArrayBlock_t const &     U,
+               DataArrayBlock_t const &     U2,
+               FaceDataArrayBlock_t const & Bface,
+               FaceDataArrayBlock_t const & Bface2,
+               real_t                       dt) = 0;
 
   // =====================================================================
   // =====================================================================
   //! fills ghost octants with primitive variables from MPI exchange
   void
-  mpi_exchange_mirrors_and_ghosts([[maybe_unused]] DataArrayGhostedBlock_t q_ghosted_mg)
+  mpi_exchange_mirrors_and_ghosts([[maybe_unused]] DataArrayGhostedBlock_t const & q_ghosted_mg)
   {
 
     // This fence ensure that buffer q_ghosted_mg (output of ConvertToPrimitivesVariablesFunctor
@@ -123,7 +123,7 @@ public:
   // =====================================================================
   //! add gravity source term
   virtual void
-  add_gravity_source_term(DataArrayBlock_t u_in, DataArrayBlock_t u_out, real_t dt)
+  add_gravity_source_term(DataArrayBlock_t const & u_in, DataArrayBlock_t const & u_out, real_t dt)
   {
 
     KALYPSSO_PROFILING_REGION_DEVICE(m_profiling_mgr, NUM_SCHEME_GRAVITY);

@@ -162,11 +162,11 @@ public:
   total_mem_size_in_bytes() override;
 
   void
-  do_time_step(DataArrayBlock_t     U,
-               DataArrayBlock_t     U2,
-               FaceDataArrayBlock_t Bface,
-               FaceDataArrayBlock_t Bface2,
-               real_t               dt) override;
+  do_time_step(DataArrayBlock_t const &     U,
+               DataArrayBlock_t const &     U2,
+               FaceDataArrayBlock_t const & Bface,
+               FaceDataArrayBlock_t const & Bface2,
+               real_t                       dt) override;
 
 private:
   /*
@@ -221,7 +221,7 @@ private:
 
   //! convert naked Bface block array into ghosted block array
   void
-  fill_Bface_ghosted(FaceDataArrayBlock_t Bface);
+  fill_Bface_ghosted(FaceDataArrayBlock_t const & Bface);
 
   //! Convert conservative variables to primitive variables in mirror quadrants.
   //! Fills m_Q_ghosted_mg
@@ -230,14 +230,15 @@ private:
   //! \param[in] Bface magnetic field (owned + ghosts)
   //!
   void
-  convert_to_primitives_in_mirror_quads(DataArrayBlock_t U, FaceDataArrayBlock_t Bface);
+  convert_to_primitives_in_mirror_quads(DataArrayBlock_t const &     U,
+                                        FaceDataArrayBlock_t const & Bface);
 
   //! Convert conservative variables to primitive variables in owned octants + copy ghost octants
   //!
   //! \param[in] U conservative variables (owned + ghosts)
   //! \param[in] Bface magnetic field (owned + ghosts)
   void
-  convert_to_primitives(DataArrayBlock_t U, FaceDataArrayBlock_t Bface);
+  convert_to_primitives(DataArrayBlock_t const & U, FaceDataArrayBlock_t const & Bface);
 
   //! compute limited slopes in owned and ghosts quadrants
   void
@@ -257,10 +258,10 @@ private:
 
   //! Update conservative variable in owned quadrants.
   void
-  read_fluxes_and_update_in_owned(DataArrayBlock_t     u_out,
-                                  FaceDataArrayBlock_t b_out,
-                                  real_t               dt,
-                                  int                  direction);
+  read_fluxes_and_update_in_owned(DataArrayBlock_t const &     u_out,
+                                  FaceDataArrayBlock_t const & b_out,
+                                  real_t                       dt,
+                                  int                          direction);
 
   //! compute electric field in owned and ghost octants
   void
@@ -276,7 +277,7 @@ private:
 
   //! Update magnetic field.
   void
-  read_emf_and_update_in_owned(FaceDataArrayBlock_t b_out);
+  read_emf_and_update_in_owned(FaceDataArrayBlock_t const & b_out);
 
 }; // class GodunovImplemV0
 

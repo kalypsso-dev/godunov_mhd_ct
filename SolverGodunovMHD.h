@@ -452,7 +452,7 @@ private:
   //!
   //! \param[in] amr_hashmap_before_adapt is the amr hashmap before mesh adaptation
   void
-  map_userdata_after_adapt(amr_hashmap_t amr_hashmap_before_adapt);
+  map_userdata_after_adapt(amr_hashmap_t const & amr_hashmap_before_adapt);
 
 }; // class SolverGodunovMHD
 
