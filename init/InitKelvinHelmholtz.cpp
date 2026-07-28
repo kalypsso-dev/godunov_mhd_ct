@@ -25,7 +25,7 @@ InitKelvinHelmholtzDataFunctor<dim, device_t>::InitKelvinHelmholtzDataFunctor(
   int32_t                      local_num_octants,
   HydroParams                  params,
   ConfigMap const &            config_map,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface)
@@ -53,7 +53,7 @@ InitKelvinHelmholtzDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEn
                                                      int32_t                      local_num_octants,
                                                      HydroParams                  params,
                                                      ConfigMap const &            config_map,
-                                                     FieldMap<models::MHD>  fm,
+                                                     FieldMap<models::MHD>        fm,
                                                      brick_size_t<dim>            brick_sizes,
                                                      DataArrayBlock_t             Udata,
                                                      FaceDataArrayBlock_t         Bface)
@@ -473,7 +473,7 @@ InitKelvinHelmholtzRefineFunctor<dim, device_t>::InitKelvinHelmholtzRefineFuncto
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -499,15 +499,15 @@ InitKelvinHelmholtzRefineFunctor<dim, device_t>::InitKelvinHelmholtzRefineFuncto
 template <size_t dim, typename device_t>
 void
 InitKelvinHelmholtzRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t> orchard_keys,
-                                                       int32_t           local_num_octants,
-                                                       ConfigMap const & config_map,
-                                                       HydroParams       params,
+                                                       int32_t               local_num_octants,
+                                                       ConfigMap const &     config_map,
+                                                       HydroParams           params,
                                                        FieldMap<models::MHD> fm,
-                                                       brick_size_t<dim>           brick_sizes,
-                                                       DataArrayBlock_t            Udata,
-                                                       FaceDataArrayBlock_t        Bface,
-                                                       amrflags_view_t             amrflags,
-                                                       int                         level_refine)
+                                                       brick_size_t<dim>     brick_sizes,
+                                                       DataArrayBlock_t      Udata,
+                                                       FaceDataArrayBlock_t  Bface,
+                                                       amrflags_view_t       amrflags,
+                                                       int                   level_refine)
 {
   // iterate functor for refinement
   InitKelvinHelmholtzRefineFunctor functor(orchard_keys,

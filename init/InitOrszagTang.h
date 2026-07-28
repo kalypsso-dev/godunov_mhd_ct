@@ -99,7 +99,7 @@ public:
 
   InitOrszagTangDataFunctor(DataArrayBlock_t             Udata,
                             FaceDataArrayBlock_t         Bface,
-                            FieldMap<models::MHD>  fm,
+                            FieldMap<models::MHD>        fm,
                             orchard_key_view_t<device_t> orchard_keys,
                             int32_t                      local_num_octants,
                             ConfigMap const &            config_map);
@@ -108,7 +108,7 @@ public:
   static void
   apply(DataArrayBlock_t             Udata,
         FaceDataArrayBlock_t         Bface,
-        FieldMap<models::MHD>  fm,
+        FieldMap<models::MHD>        fm,
         orchard_key_view_t<device_t> orchard_keys,
         int32_t                      local_num_octants,
         ConfigMap const &            config_map);

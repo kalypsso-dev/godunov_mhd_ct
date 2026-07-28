@@ -7,8 +7,8 @@
  *
  * Godunov time integration implementation detail interface definition.
  */
-#ifndef KALYPSSO_GODUNOV_MHD_GODUNOV_IMPLEM_BASE_H_
-#define KALYPSSO_GODUNOV_MHD_GODUNOV_IMPLEM_BASE_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_GODUNOV_IMPLEM_BASE_H_
+#define KALYPSSO_GODUNOV_MHD_CT_GODUNOV_IMPLEM_BASE_H_
 
 // shared
 #include <kalypsso/core/kalypsso_core_config.h> // for KALYPSSO_CORE_USE_HDF5, ...
@@ -197,4 +197,4 @@ public:
 
 } // namespace kalypsso
 
-#endif // KALYPSSO_GODUNOV_MHD_GODUNOV_IMPLEM_BASE_H_
+#endif // KALYPSSO_GODUNOV_MHD_CT_GODUNOV_IMPLEM_BASE_H_

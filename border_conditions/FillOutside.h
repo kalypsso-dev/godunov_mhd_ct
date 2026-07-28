@@ -7,8 +7,8 @@
  *
  * Implement border conditions (other than periodic) for MHD.
  */
-#ifndef KALYPSSO_GODUNOV_MHD_FILLOUTSIDE_H_
-#define KALYPSSO_GODUNOV_MHD_FILLOUTSIDE_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_FILLOUTSIDE_H_
+#define KALYPSSO_GODUNOV_MHD_CT_FILLOUTSIDE_H_
 
 #include <kalypsso/core/FillOutside_utils.h>
 
@@ -93,7 +93,6 @@ BETTER_ENUM(BC_MHD, uint32_t,
  *
  * In you need a border condition with more control of how corner blocks are filled, you need to
  * modify/customize this prototype border condition functor.
-
  */
 template <size_t dim, typename device_t>
 class FillOutsideCellFunctor
@@ -108,7 +107,7 @@ public:
   using DataArrayBlock_t = DataArrayBlock<dim, real_t, device_t>;
   using FaceDataArrayBlock_t = FaceDataArrayBlock<dim, real_t, device_t>;
 
-  // makes enum Hydro::VarId available
+  // makes enum MHD::VarId available
   using MHD = models::MHD;
 
   using bc_array_t = BorderConditionsConfig<BC_MHD>::bc_array_t<dim>;
@@ -227,7 +226,7 @@ private:
   //! p4est brick connectivity sizes
   const brick_size_t<dim> m_brick_size;
 
-  //! foer each direction, state if mesh is periodic
+  //! for each direction, state if mesh is periodic
   const Kokkos::Array<bool, dim> m_brick_periodicity;
 
   //! border conditions array (one for each face, edge, corner)
@@ -243,4 +242,4 @@ extern template class FillOutsideCellFunctor<3, kalypsso::DefaultDevice>;
 
 } // namespace kalypsso
 
-#endif // KALYPSSO_GODUNOV_MHD_FILLOUTSIDE_H_
+#endif // KALYPSSO_GODUNOV_MHD_CT_FILLOUTSIDE_H_

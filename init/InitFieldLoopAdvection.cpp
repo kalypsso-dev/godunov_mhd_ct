@@ -25,7 +25,7 @@ template <size_t dim, typename device_t>
 InitFieldLoopAdvectionDataFunctor<dim, device_t>::InitFieldLoopAdvectionDataFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   int32_t                      local_num_octants,
   ConfigMap const &            config_map)
@@ -45,12 +45,12 @@ InitFieldLoopAdvectionDataFunctor<dim, device_t>::InitFieldLoopAdvectionDataFunc
 // ====================================================================
 template <size_t dim, typename device_t>
 void
-InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(DataArrayBlock_t            Udata,
-                                                        FaceDataArrayBlock_t        Bface,
-                                                        FieldMap<models::MHD> fm,
-                                                        MeshMap<dim, device_t> &    mesh_map,
-                                                        int32_t           local_num_octants,
-                                                        ConfigMap const & config_map)
+InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(DataArrayBlock_t         Udata,
+                                                        FaceDataArrayBlock_t     Bface,
+                                                        FieldMap<models::MHD>    fm,
+                                                        MeshMap<dim, device_t> & mesh_map,
+                                                        int32_t                  local_num_octants,
+                                                        ConfigMap const &        config_map)
 {
   // data init functor
   InitFieldLoopAdvectionDataFunctor functor(
@@ -292,7 +292,7 @@ template <size_t dim, typename device_t>
 InitFieldLoopAdvectionRefineFunctor<dim, device_t>::InitFieldLoopAdvectionRefineFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   amrflags_view_t              amrflags,
   int32_t                      local_num_octants,
@@ -316,7 +316,7 @@ template <size_t dim, typename device_t>
 void
 InitFieldLoopAdvectionRefineFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                           FaceDataArrayBlock_t         Bface,
-                                                          FieldMap<models::MHD>  fm,
+                                                          FieldMap<models::MHD>        fm,
                                                           orchard_key_view_t<device_t> orchard_keys,
                                                           amrflags_view_t              amrflags,
                                                           int32_t           local_num_octants,

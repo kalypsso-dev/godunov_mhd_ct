@@ -24,7 +24,7 @@ template <size_t dim, typename device_t>
 InitOrszagTangDataFunctor<dim, device_t>::InitOrszagTangDataFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   int32_t                      local_num_octants,
   ConfigMap const &            config_map)
@@ -45,7 +45,7 @@ template <size_t dim, typename device_t>
 void
 InitOrszagTangDataFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                 FaceDataArrayBlock_t         Bface,
-                                                FieldMap<models::MHD>  fm,
+                                                FieldMap<models::MHD>        fm,
                                                 orchard_key_view_t<device_t> orchard_keys,
                                                 int32_t                      local_num_octants,
                                                 ConfigMap const &            config_map)

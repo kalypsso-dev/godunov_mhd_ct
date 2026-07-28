@@ -25,7 +25,7 @@ InitDiamagCavityDataFunctor<dim, device_t>::InitDiamagCavityDataFunctor(
   int32_t                      local_num_octants,
   HydroParams                  params,
   ConfigMap const &            config_map,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface)
@@ -48,13 +48,13 @@ template <size_t dim, typename device_t>
 auto
 InitDiamagCavityDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEnv const & par_env,
                                                   orchard_key_view_t<device_t>         orchard_keys,
-                                                  int32_t                     local_num_octants,
-                                                  HydroParams                 params,
-                                                  ConfigMap const &           config_map,
+                                                  int32_t               local_num_octants,
+                                                  HydroParams           params,
+                                                  ConfigMap const &     config_map,
                                                   FieldMap<models::MHD> fm,
-                                                  brick_size_t<dim>           brick_sizes,
-                                                  DataArrayBlock_t            Udata,
-                                                  FaceDataArrayBlock_t        Bface)
+                                                  brick_size_t<dim>     brick_sizes,
+                                                  DataArrayBlock_t      Udata,
+                                                  FaceDataArrayBlock_t  Bface)
 {
   // data init functor
   InitDiamagCavityDataFunctor functor(
@@ -367,7 +367,7 @@ InitDiamagCavityRefineFunctor<dim, device_t>::InitDiamagCavityRefineFunctor(
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -395,7 +395,7 @@ InitDiamagCavityRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t>
                                                     int32_t                      local_num_octants,
                                                     ConfigMap const &            config_map,
                                                     HydroParams                  params,
-                                                    FieldMap<models::MHD>  fm,
+                                                    FieldMap<models::MHD>        fm,
                                                     brick_size_t<dim>            brick_sizes,
                                                     DataArrayBlock_t             Udata,
                                                     FaceDataArrayBlock_t         Bface,

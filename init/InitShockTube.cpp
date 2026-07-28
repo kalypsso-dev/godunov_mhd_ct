@@ -23,7 +23,7 @@ template <size_t dim, typename device_t>
 InitShockTubeDataFunctor<dim, device_t>::InitShockTubeDataFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   int32_t                      local_num_octants,
   ConfigMap const &            config_map)
@@ -43,7 +43,7 @@ template <size_t dim, typename device_t>
 void
 InitShockTubeDataFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                FaceDataArrayBlock_t         Bface,
-                                               FieldMap<models::MHD>  fm,
+                                               FieldMap<models::MHD>        fm,
                                                orchard_key_view_t<device_t> orchard_keys,
                                                int32_t                      local_num_octants,
                                                ConfigMap const &            config_map)
@@ -309,7 +309,7 @@ template <size_t dim, typename device_t>
 InitShockTubeRefineFunctor<dim, device_t>::InitShockTubeRefineFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   amrflags_view_t              amrflags,
   int32_t                      local_num_octants,
@@ -333,7 +333,7 @@ template <size_t dim, typename device_t>
 void
 InitShockTubeRefineFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                  FaceDataArrayBlock_t         Bface,
-                                                 FieldMap<models::MHD>  fm,
+                                                 FieldMap<models::MHD>        fm,
                                                  orchard_key_view_t<device_t> orchard_keys,
                                                  amrflags_view_t              amrflags,
                                                  int32_t                      local_num_octants,

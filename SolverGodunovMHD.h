@@ -10,8 +10,8 @@
  * Main class for solving compressible MHD with
  * MUSCL-Hancock scheme for 2D/3D + constraint transport.
  */
-#ifndef KALYPSSO_GODUNOV_MHD_SOLVER_GODUNOV_MHD_H_
-#define KALYPSSO_GODUNOV_MHD_SOLVER_GODUNOV_MHD_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_SOLVER_GODUNOV_MHD_H_
+#define KALYPSSO_GODUNOV_MHD_CT_SOLVER_GODUNOV_MHD_H_
 
 #include <cstdio>
 #include <cassert> // assert
@@ -56,6 +56,7 @@
 
 namespace kalypsso
 {
+
 namespace godunov_mhd_ct
 {
 

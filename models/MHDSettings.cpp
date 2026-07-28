@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 kalypsso-core authors
+// SPDX-FileCopyrightText: 2025 kalypsso-dev/godunov_mhd_ct authors
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 

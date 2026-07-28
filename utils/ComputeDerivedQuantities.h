@@ -5,8 +5,8 @@
 /**
  * \file ComputeDerivedQuantities.h
  */
-#ifndef KALYPSSO_GODUNOV_MHD_COMPUTE_DERIVED_QUANTITIES_H_
-#define KALYPSSO_GODUNOV_MHD_COMPUTE_DERIVED_QUANTITIES_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_COMPUTE_DERIVED_QUANTITIES_H_
+#define KALYPSSO_GODUNOV_MHD_CT_COMPUTE_DERIVED_QUANTITIES_H_
 
 #include <kalypsso/core/kalypsso_core_base.h> // for assertm
 #include <kalypsso/core/kokkos_shared.h>
@@ -98,7 +98,7 @@ struct ComputeDerivedQuantities
   static DataArrayBlock_t
   run(DataArrayBlock_t const &     Udata,
       FaceDataArrayBlock_t const & Bface,
-      FieldMap<models::MHD>  fm,
+      FieldMap<models::MHD>        fm,
       DERIVED_QUANTITY             quantity,
       MHDSettings const &          mhd_settings,
       int64_t                      iOct_begin,
@@ -231,7 +231,7 @@ struct ComputeDerivedQuantities
             res(cell_index, 0, iOct) = ZERO_F;
           }
         }
-      });
+      }); // end Kokkos::parallel_for
 
     return res;
 
@@ -242,7 +242,7 @@ struct ComputeDerivedQuantities
   static DataArrayBlock_t
   run(DataArrayBlock_t const &     Udata,
       FaceDataArrayBlock_t const & Bface,
-      FieldMap<models::MHD>  fm,
+      FieldMap<models::MHD>        fm,
       std::string                  quantity,
       MHDSettings const &          mhd_settings,
       int64_t                      iOct_begin,
@@ -270,4 +270,4 @@ struct ComputeDerivedQuantities
 
 } // namespace kalypsso
 
-#endif // KALYPSSO_GODUNOV_MHD_COMPUTE_DERIVED_QUANTITIES_H_
+#endif // KALYPSSO_GODUNOV_MHD_CT_COMPUTE_DERIVED_QUANTITIES_H_

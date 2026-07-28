@@ -22,7 +22,7 @@ namespace godunov_mhd_ct
 template <size_t dim, typename device_t>
 InitRotorDataFunctor<dim, device_t>::InitRotorDataFunctor(DataArrayBlock_t             Udata,
                                                           FaceDataArrayBlock_t         Bface,
-                                                          FieldMap<models::MHD>  fm,
+                                                          FieldMap<models::MHD>        fm,
                                                           orchard_key_view_t<device_t> orchard_keys,
                                                           int32_t           local_num_octants,
                                                           ConfigMap const & config_map)
@@ -42,7 +42,7 @@ template <size_t dim, typename device_t>
 void
 InitRotorDataFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                            FaceDataArrayBlock_t         Bface,
-                                           FieldMap<models::MHD>  fm,
+                                           FieldMap<models::MHD>        fm,
                                            orchard_key_view_t<device_t> orchard_keys,
                                            int32_t                      local_num_octants,
                                            ConfigMap const &            config_map)
@@ -314,7 +314,7 @@ template <size_t dim, typename device_t>
 InitRotorRefineFunctor<dim, device_t>::InitRotorRefineFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   amrflags_view_t              amrflags,
   int32_t                      local_num_octants,
@@ -338,7 +338,7 @@ template <size_t dim, typename device_t>
 void
 InitRotorRefineFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                              FaceDataArrayBlock_t         Bface,
-                                             FieldMap<models::MHD>  fm,
+                                             FieldMap<models::MHD>        fm,
                                              orchard_key_view_t<device_t> orchard_keys,
                                              amrflags_view_t              amrflags,
                                              int32_t                      local_num_octants,

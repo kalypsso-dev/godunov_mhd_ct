@@ -158,19 +158,19 @@ public:
 
   InitFieldLoopAdvectionDataFunctor(DataArrayBlock_t             Udata,
                                     FaceDataArrayBlock_t         Bface,
-                                    FieldMap<models::MHD>  fm,
+                                    FieldMap<models::MHD>        fm,
                                     orchard_key_view_t<device_t> orchard_keys,
                                     int32_t                      local_num_octants,
                                     ConfigMap const &            config_map);
 
   // static method which does it all: create and execute functor
   static void
-  apply(DataArrayBlock_t            Udata,
-        FaceDataArrayBlock_t        Bface,
-        FieldMap<models::MHD> fm,
-        MeshMap<dim, device_t> &    mesh_map,
-        int32_t                     local_num_octants,
-        ConfigMap const &           config_map);
+  apply(DataArrayBlock_t         Udata,
+        FaceDataArrayBlock_t     Bface,
+        FieldMap<models::MHD>    fm,
+        MeshMap<dim, device_t> & mesh_map,
+        int32_t                  local_num_octants,
+        ConfigMap const &        config_map);
 
   // ====================================================================
   // ====================================================================
@@ -285,7 +285,7 @@ public:
   // ===========================================================
   InitFieldLoopAdvectionRefineFunctor(DataArrayBlock_t             Udata,
                                       FaceDataArrayBlock_t         Bface,
-                                      FieldMap<models::MHD>  fm,
+                                      FieldMap<models::MHD>        fm,
                                       orchard_key_view_t<device_t> orchard_keys,
                                       amrflags_view_t              amrflags,
                                       int32_t                      local_num_octants,
@@ -298,7 +298,7 @@ public:
   static void
   apply(DataArrayBlock_t             Udata,
         FaceDataArrayBlock_t         Bface,
-        FieldMap<models::MHD>  fm,
+        FieldMap<models::MHD>        fm,
         orchard_key_view_t<device_t> orchard_keys,
         amrflags_view_t              amrflags,
         int32_t                      local_num_octants,

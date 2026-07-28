@@ -26,7 +26,7 @@ InitRayleighTaylorDataFunctor<dim, device_t>::InitRayleighTaylorDataFunctor(
   HydroParams                  params,
   ConfigMap const &            config_map,
   Kokkos::Array<real_t, dim>   gravity_field,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface)
@@ -55,7 +55,7 @@ InitRayleighTaylorDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEnv
                                                     int32_t                      local_num_octants,
                                                     HydroParams                  params,
                                                     ConfigMap const &            config_map,
-                                                    FieldMap<models::MHD>  fm,
+                                                    FieldMap<models::MHD>        fm,
                                                     brick_size_t<dim>            brick_sizes,
                                                     DataArrayBlock_t             Udata,
                                                     FaceDataArrayBlock_t         Bface)
@@ -451,7 +451,7 @@ InitRayleighTaylorRefineFunctor<dim, device_t>::InitRayleighTaylorRefineFunctor(
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -477,15 +477,15 @@ InitRayleighTaylorRefineFunctor<dim, device_t>::InitRayleighTaylorRefineFunctor(
 template <size_t dim, typename device_t>
 void
 InitRayleighTaylorRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t> orchard_keys,
-                                                      int32_t                     local_num_octants,
-                                                      ConfigMap const &           config_map,
-                                                      HydroParams                 params,
+                                                      int32_t               local_num_octants,
+                                                      ConfigMap const &     config_map,
+                                                      HydroParams           params,
                                                       FieldMap<models::MHD> fm,
-                                                      brick_size_t<dim>           brick_sizes,
-                                                      DataArrayBlock_t            Udata,
-                                                      FaceDataArrayBlock_t        Bface,
-                                                      amrflags_view_t             amrflags,
-                                                      int                         level_refine)
+                                                      brick_size_t<dim>     brick_sizes,
+                                                      DataArrayBlock_t      Udata,
+                                                      FaceDataArrayBlock_t  Bface,
+                                                      amrflags_view_t       amrflags,
+                                                      int                   level_refine)
 {
   // iterate functor for refinement
   InitRayleighTaylorRefineFunctor functor(orchard_keys,

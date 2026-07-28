@@ -137,7 +137,7 @@ public:
   void
   operator()(TagInitTotalEnergy const &, const int32_t & global_index) const;
 
-}; // InitBlastDataFunctor
+}; // class InitBlastDataFunctor
 
 // explicit template instantiation
 extern template class InitBlastDataFunctor<2, kalypsso::DefaultDevice>;

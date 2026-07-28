@@ -21,13 +21,13 @@ namespace godunov_mhd_ct
 // ====================================================================
 template <size_t dim, typename device_t>
 InitBlastDataFunctor<dim, device_t>::InitBlastDataFunctor(orchard_key_view_t<device_t> orchard_keys,
-                                                          int32_t           local_num_octants,
-                                                          HydroParams       params,
-                                                          ConfigMap const & config_map,
+                                                          int32_t               local_num_octants,
+                                                          HydroParams           params,
+                                                          ConfigMap const &     config_map,
                                                           FieldMap<models::MHD> fm,
-                                                          brick_size_t<dim>           brick_sizes,
-                                                          DataArrayBlock_t            Udata,
-                                                          FaceDataArrayBlock_t        Bface)
+                                                          brick_size_t<dim>     brick_sizes,
+                                                          DataArrayBlock_t      Udata,
+                                                          FaceDataArrayBlock_t  Bface)
   : m_orchard_keys(orchard_keys)
   , m_local_num_octants(local_num_octants)
   , m_params(params)
@@ -50,7 +50,7 @@ InitBlastDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEnv const & 
                                            int32_t                              local_num_octants,
                                            HydroParams                          params,
                                            ConfigMap const &                    config_map,
-                                           FieldMap<models::MHD>          fm,
+                                           FieldMap<models::MHD>                fm,
                                            brick_size_t<dim>                    brick_sizes,
                                            DataArrayBlock_t                     Udata,
                                            FaceDataArrayBlock_t                 Bface)
@@ -345,7 +345,7 @@ InitBlastRefineFunctor<dim, device_t>::InitBlastRefineFunctor(
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -373,7 +373,7 @@ InitBlastRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t> orchar
                                              int32_t                      local_num_octants,
                                              ConfigMap const &            config_map,
                                              HydroParams                  params,
-                                             FieldMap<models::MHD>  fm,
+                                             FieldMap<models::MHD>        fm,
                                              brick_size_t<dim>            brick_sizes,
                                              DataArrayBlock_t             Udata,
                                              FaceDataArrayBlock_t         Bface,
@@ -410,7 +410,7 @@ InitBlastRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t> orchar
   {
     KALYPSSO_ERROR("Unknown value for refine indicator method.");
   }
-} // IniBlastRefineFunctor::apply
+} // InitBlastRefineFunctor<dim, device_t>::apply
 
 // ====================================================================
 // ====================================================================
@@ -487,7 +487,7 @@ InitBlastRefineFunctor<dim, device_t>::operator()(TagRefineGeometric const &,
   // if a single cell in current block needs to refine => do refine
   m_amrflags(iOct) = flag;
 
-} // InitBlastRefineFunctor::operator() - TagRefineGeometric
+} // InitBlastRefineFunctor<dim, device_t>::operator() - TagRefineGeometric
 
 // explicit template instantiation
 template class InitBlastRefineFunctor<2, kalypsso::DefaultDevice>;
@@ -693,7 +693,7 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
       });
   }
 
-} // InitBlast::apply
+} // InitBlast::apply()
 
 template class InitBlast<2, kalypsso::DefaultDevice>;
 template class InitBlast<3, kalypsso::DefaultDevice>;

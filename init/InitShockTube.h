@@ -87,7 +87,7 @@ public:
 
   InitShockTubeDataFunctor(DataArrayBlock_t             Udata,
                            FaceDataArrayBlock_t         Bface,
-                           FieldMap<models::MHD>  fm,
+                           FieldMap<models::MHD>        fm,
                            orchard_key_view_t<device_t> orchard_keys,
                            int32_t                      local_num_octants,
                            ConfigMap const &            config_map);
@@ -98,7 +98,7 @@ public:
   static void
   apply(DataArrayBlock_t             Udata,
         FaceDataArrayBlock_t         Bface,
-        FieldMap<models::MHD>  fm,
+        FieldMap<models::MHD>        fm,
         orchard_key_view_t<device_t> orchard_keys,
         int32_t                      local_num_octants,
         ConfigMap const &            config_map);
@@ -198,7 +198,7 @@ public:
   // ===========================================================
   InitShockTubeRefineFunctor(DataArrayBlock_t             Udata,
                              FaceDataArrayBlock_t         Bface,
-                             FieldMap<models::MHD>  fm,
+                             FieldMap<models::MHD>        fm,
                              orchard_key_view_t<device_t> orchard_keys,
                              amrflags_view_t              amrflags,
                              int32_t                      local_num_octants,
@@ -211,7 +211,7 @@ public:
   static void
   apply(DataArrayBlock_t             Udata,
         FaceDataArrayBlock_t         Bface,
-        FieldMap<models::MHD>  fm,
+        FieldMap<models::MHD>        fm,
         orchard_key_view_t<device_t> orchard_keys,
         amrflags_view_t              amrflags,
         int32_t                      local_num_octants,

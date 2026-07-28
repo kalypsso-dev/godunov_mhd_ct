@@ -7,8 +7,8 @@
  *
  * MHD variant.
  */
-#ifndef KALYPSSO_GODUNOV_MHD_CONVERTTOPRIMITIVESVARIABLES_H_
-#define KALYPSSO_GODUNOV_MHD_CONVERTTOPRIMITIVESVARIABLES_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_CONVERTTOPRIMITIVESVARIABLES_H_
+#define KALYPSSO_GODUNOV_MHD_CT_CONVERTTOPRIMITIVESVARIABLES_H_
 
 #include <kalypsso/core/FillBlockGhosts_common.h>
 #include <kalypsso/core/orchard_key_base.h>
@@ -58,7 +58,7 @@ public:
   using CellLocation_t = CellLocation<dim>;
   using StencilHelper_t = StencilHelper<dim, device_t>;
 
-  //! makes enum Hydro::VarId available
+  //! makes enum MHD::VarId available
   using MHD = models::MHD;
 
 private:
@@ -91,7 +91,7 @@ private:
   //! block sizes
   const block_size_t<dim> m_block_sizes;
 
-  //! hydro settings (EOS parameters)
+  //! MHD parameters
   MHDSettings m_mhd_settings;
 
   //! prolongation parameter
@@ -372,4 +372,4 @@ extern template class ConvertToPrimitivesVariablesFunctor<3, kalypsso::DefaultDe
 
 } // namespace kalypsso
 
-#endif // KALYPSSO_GODUNOV_MHD_CONVERTTOPRIMITIVESVARIABLES_H_
+#endif // KALYPSSO_GODUNOV_MHD_CT_CONVERTTOPRIMITIVESVARIABLES_H_
