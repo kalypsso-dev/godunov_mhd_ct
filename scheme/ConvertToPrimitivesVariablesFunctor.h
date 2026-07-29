@@ -7,8 +7,8 @@
  *
  * MHD variant.
  */
-#ifndef KALYPSSO_GODUNOV_MHD_CONVERTTOPRIMITIVESVARIABLES_H_
-#define KALYPSSO_GODUNOV_MHD_CONVERTTOPRIMITIVESVARIABLES_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_CONVERTTOPRIMITIVESVARIABLES_H_
+#define KALYPSSO_GODUNOV_MHD_CT_CONVERTTOPRIMITIVESVARIABLES_H_
 
 #include <kalypsso/core/FillBlockGhosts_common.h>
 #include <kalypsso/core/orchard_key_base.h>
@@ -18,9 +18,9 @@
 #include <kalypsso/core/prolongation.h>
 #include <kalypsso/core/AMRMeshInfo.h>
 #include <kalypsso/core/FaceDataArrayBlock.h>
-#include <kalypsso/core/models/mhd_utils.h> // for computePrimitives
-#include <kalypsso/core/HydroParams.h>      // for MHDSettings
-#include <kalypsso/core/mesh_utils.h>       // for definition of Face::XMIN, etc...
+#include <godunov_mhd_ct/models/mhd_utils.h> // for computePrimitives
+#include <kalypsso/core/HydroParams.h>       // for MHDSettings
+#include <kalypsso/core/mesh_utils.h>        // for definition of Face::XMIN, etc...
 
 namespace kalypsso
 {
@@ -58,8 +58,8 @@ public:
   using CellLocation_t = CellLocation<dim>;
   using StencilHelper_t = StencilHelper<dim, device_t>;
 
-  //! makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  //! makes enum MHD::VarId available
+  using MHD = models::MHD;
 
 private:
   //! helper to compute neighbor cell location
@@ -91,7 +91,7 @@ private:
   //! block sizes
   const block_size_t<dim> m_block_sizes;
 
-  //! hydro settings (EOS parameters)
+  //! MHD parameters
   MHDSettings m_mhd_settings;
 
   //! prolongation parameter
@@ -372,4 +372,4 @@ extern template class ConvertToPrimitivesVariablesFunctor<3, kalypsso::DefaultDe
 
 } // namespace kalypsso
 
-#endif // KALYPSSO_GODUNOV_MHD_CONVERTTOPRIMITIVESVARIABLES_H_
+#endif // KALYPSSO_GODUNOV_MHD_CT_CONVERTTOPRIMITIVESVARIABLES_H_

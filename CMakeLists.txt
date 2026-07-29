@@ -11,9 +11,9 @@ set(GODUNOV_MHD_CT_SRCS
     init/InitDiamagCavity.h
     init/InitFieldLoopAdvection.cpp
     init/InitFieldLoopAdvection.h
-    init/InitOrszagTang.cpp
     init/InitKelvinHelmholtz.cpp
     init/InitKelvinHelmholtz.h
+    init/InitOrszagTang.cpp
     init/InitOrszagTang.h
     init/InitRayleighTaylor.cpp
     init/InitRayleighTaylor.cpp
@@ -21,6 +21,16 @@ set(GODUNOV_MHD_CT_SRCS
     init/InitRotor.h
     init/InitShockTube.cpp
     init/InitShockTube.h
+    models/HydroSettings.cpp
+    models/HydroSettings.h
+    models/MHD.cpp
+    models/MHD.h
+    models/MHDSettings.cpp
+    models/MHDSettings.h
+    models/MHDState.h
+    models/mhd_utils.h
+    models/riemann_solver_types.h
+    models/RiemannSolvers_MHD.h
     profiling.h
     scheme/AddGravitySourceTerm.cpp
     scheme/AddGravitySourceTerm.h
@@ -58,7 +68,6 @@ set(GODUNOV_MHD_CT_SRCS
     utils/ComputeDerivedQuantities.h)
 
 add_library(godunov_mhd_ct ${GODUNOV_MHD_CT_SRCS})
-# target_compile_options(godunov_mhd_ct PUBLIC "-G")
 target_include_directories(godunov_mhd_ct PUBLIC ${CMAKE_SOURCE_DIR}/src
                                                  ${CMAKE_SOURCE_DIR}/external/better-enums)
 

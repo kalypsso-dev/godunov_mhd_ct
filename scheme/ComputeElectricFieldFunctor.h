@@ -13,9 +13,8 @@
 #include <kalypsso/core/FieldMap.h>
 
 // hydro utils (conservative versus primitive variable, equation of state, ...)
-#include <kalypsso/core/models/MHD.h>
-#include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/MHD.h>
+#include <godunov_mhd_ct/models/MHDState.h>
 #include <kalypsso/core/utils_block.h>
 
 namespace kalypsso
@@ -61,7 +60,7 @@ public:
   using DataArrayGhostedBlock_t = DataArrayGhostedBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
 private:
   //! a ghosted block array of primitive variables (ghost width is 2) - nb_var_mhd_face variables
@@ -71,7 +70,7 @@ private:
   DataArrayGhostedBlock_t m_elec_field;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! starting octant id
   const int32_t m_iOct_begin;
@@ -105,7 +104,7 @@ public:
    */
   ComputeElectricFieldFunctor(DataArrayGhostedBlock_t const & prim_var,
                               DataArrayGhostedBlock_t const & elec_field,
-                              FieldMap<core::models::MHD>     fm,
+                              FieldMap<models::MHD>           fm,
                               int32_t                         iOct_begin,
                               int32_t                         num_octants);
 
@@ -117,7 +116,7 @@ public:
   static void
   apply_on_group(DataArrayGhostedBlock_t const & primitive_vars,
                  DataArrayGhostedBlock_t const & elec_field,
-                 FieldMap<core::models::MHD>     fm,
+                 FieldMap<models::MHD>           fm,
                  int32_t                         num_octants);
 
   // ==============================================================
@@ -128,7 +127,7 @@ public:
   static void
   apply_on_ghosts(DataArrayGhostedBlock_t const & primitive_vars,
                   DataArrayGhostedBlock_t const & elec_field,
-                  FieldMap<core::models::MHD>     fm,
+                  FieldMap<models::MHD>           fm,
                   int32_t                         num_mirrors,
                   int32_t                         num_ghosts);
 

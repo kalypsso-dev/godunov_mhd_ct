@@ -22,7 +22,7 @@ namespace godunov_mhd_ct
 template <size_t dim, typename device_t>
 InitRotorDataFunctor<dim, device_t>::InitRotorDataFunctor(DataArrayBlock_t             Udata,
                                                           FaceDataArrayBlock_t         Bface,
-                                                          FieldMap<core::models::MHD>  fm,
+                                                          FieldMap<models::MHD>        fm,
                                                           orchard_key_view_t<device_t> orchard_keys,
                                                           int32_t           local_num_octants,
                                                           ConfigMap const & config_map)
@@ -42,7 +42,7 @@ template <size_t dim, typename device_t>
 void
 InitRotorDataFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                            FaceDataArrayBlock_t         Bface,
-                                           FieldMap<core::models::MHD>  fm,
+                                           FieldMap<models::MHD>        fm,
                                            orchard_key_view_t<device_t> orchard_keys,
                                            int32_t                      local_num_octants,
                                            ConfigMap const &            config_map)
@@ -90,11 +90,11 @@ InitRotorDataFunctor<dim, device_t>::operator()(TagInitHydroVar const &,
   const auto iOct = global_index / m_Udata.num_cells();
   const auto cell_index = global_index - iOct * m_Udata.num_cells();
 
-  constexpr auto ID = core::models::MHD::ID;
-  constexpr auto IE = core::models::MHD::IE;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  constexpr auto IE = models::MHD::IE;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // rotor problem parameters
   const auto & r0 = m_rparams.r0;
@@ -260,7 +260,7 @@ KOKKOS_INLINE_FUNCTION void
 InitRotorDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy const &,
                                                 const int32_t & global_index) const
 {
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto IE = models::MHD::IE;
 
   // convert global index into
   // - octant id
@@ -314,7 +314,7 @@ template <size_t dim, typename device_t>
 InitRotorRefineFunctor<dim, device_t>::InitRotorRefineFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   amrflags_view_t              amrflags,
   int32_t                      local_num_octants,
@@ -338,7 +338,7 @@ template <size_t dim, typename device_t>
 void
 InitRotorRefineFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                              FaceDataArrayBlock_t         Bface,
-                                             FieldMap<core::models::MHD>  fm,
+                                             FieldMap<models::MHD>        fm,
                                              orchard_key_view_t<device_t> orchard_keys,
                                              amrflags_view_t              amrflags,
                                              int32_t                      local_num_octants,

@@ -18,7 +18,7 @@ template <size_t dim, typename device_t>
 ComputeSourceFaceMagFunctor<dim, device_t>::ComputeSourceFaceMagFunctor(
   DataArrayGhostedBlock_t const & sFaceMag,
   DataArrayGhostedBlock_t const & elec_field,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         iOct_begin,
   int32_t                         num_octants,
   real_t                          dt,
@@ -41,7 +41,7 @@ void
 ComputeSourceFaceMagFunctor<dim, device_t>::apply_on_group(
   DataArrayGhostedBlock_t const & sFaceMag,
   DataArrayGhostedBlock_t const & elec_field,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         num_octants,
   real_t                          dt,
   ConfigMap const &               config_map,
@@ -74,7 +74,7 @@ void
 ComputeSourceFaceMagFunctor<dim, device_t>::apply_on_ghosts(
   DataArrayGhostedBlock_t const & sFaceMag,
   DataArrayGhostedBlock_t const & elec_field,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         num_mirrors,
   int32_t                         num_ghosts,
   real_t                          dt,

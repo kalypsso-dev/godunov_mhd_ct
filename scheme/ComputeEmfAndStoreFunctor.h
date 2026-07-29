@@ -14,14 +14,15 @@
 #include <kalypsso/core/orchard_key_base.h>
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/RiemannSolvers_MHD.h>
 #include <kalypsso/core/ConformalFaceStatus.h>
 #include <kalypsso/core/AMRMeshInfo.h>
 #include <kalypsso/core/TimeIntegratorConfig.h>
 
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/RiemannSolvers_MHD.h>
+
 // utils hydro
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 
 #include <type_traits>
 
@@ -64,7 +65,7 @@ public:
   using orchard_key_view_t = typename orchard_key_base_t<device_t>::view_t;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   template <size_t _dim>
   using offsets_t = coord_t<_dim, real_t>;
@@ -99,7 +100,7 @@ private:
   DataArrayGhostedBlock_t m_sFaceMag;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! offset to first octant where to write
   const int32_t m_iOct_emf_offset;
@@ -148,7 +149,7 @@ public:
                             DataArrayGhostedBlock_t const & slopes_y,
                             DataArrayGhostedBlock_t const & slopes_z,
                             DataArrayGhostedBlock_t const & sFaceMag,
-                            FieldMap<core::models::MHD>     fm,
+                            FieldMap<models::MHD>           fm,
                             int32_t                         iOct_emf_offset,
                             int32_t                         num_quads,
                             MHDSettings const &             mhd_settings,
@@ -171,7 +172,7 @@ public:
         DataArrayGhostedBlock_t const & slopes_y,
         DataArrayGhostedBlock_t const & slopes_z,
         DataArrayGhostedBlock_t const & sFaceMag,
-        FieldMap<core::models::MHD>     fm,
+        FieldMap<models::MHD>           fm,
         int32_t                         iOct_emf_offset,
         int32_t                         num_quads,
         MHDSettings const &             mhd_settings,

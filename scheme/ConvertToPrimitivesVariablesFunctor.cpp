@@ -410,7 +410,7 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::fill_inner(coord_t<dim> cons
   const auto uLoc = get_conservative_vars(cellindex_in, coord_in, iOct_global);
 
   // compute primitive variables in current cell
-  auto qLoc = core::models::mhd::computePrimitives(uLoc, m_mhd_settings);
+  auto qLoc = models::mhd::compute_primitives(uLoc, m_mhd_settings);
 
   // fake current location (AMR key is not needed here, just it to zero)
   const CellLocation_t cell_loc{ coord_in, 0, iOct_global, false };
@@ -443,7 +443,7 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::fill_ghost_copy(
                       : get_conservative_vars(cell_loc_in);
 
   // compute cell-centered primitive variables in current cell
-  auto qLoc = core::models::mhd::computePrimitives(uLoc, m_mhd_settings);
+  auto qLoc = models::mhd::compute_primitives(uLoc, m_mhd_settings);
 
   // write cell-centered primitive variables
   m_userdata_out(cellindex_out, MHD::ID, iOct_out) = qLoc[MHD::ID];
@@ -523,7 +523,7 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::
   uLoc[MHD::IC] = bLoc[MHD::CL];
 
   // compute primitive variables in current cell
-  auto qLoc = core::models::mhd::computePrimitives(uLoc, m_mhd_settings);
+  auto qLoc = models::mhd::compute_primitives(uLoc, m_mhd_settings);
 
   //
   // write hydro primitive variables
@@ -612,7 +612,7 @@ ConvertToPrimitivesVariablesFunctor<dim, device_t>::
   uLoc[MHD::IC] = HALF_F * (bLoc[MHD::CL] + bLoc[MHD::CR]);
 
   // compute primitive variables in current cell
-  auto qLoc = core::models::mhd::computePrimitives(uLoc, m_mhd_settings);
+  auto qLoc = models::mhd::compute_primitives(uLoc, m_mhd_settings);
 
   //
   // write hydro primitive variables

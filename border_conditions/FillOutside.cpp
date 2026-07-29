@@ -44,7 +44,6 @@ FillOutsideCellFunctor<dim, device_t>::FillOutsideCellFunctor(
 
 // ==============================================================
 // ==============================================================
-//! static method which does it all: create and execute functor with range policy
 template <size_t dim, typename device_t>
 void
 FillOutsideCellFunctor<dim, device_t>::apply(DataArrayBlock_t const &     hydro,

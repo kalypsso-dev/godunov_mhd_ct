@@ -24,7 +24,7 @@ template <size_t dim, typename device_t>
 InitOrszagTangDataFunctor<dim, device_t>::InitOrszagTangDataFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   int32_t                      local_num_octants,
   ConfigMap const &            config_map)
@@ -45,7 +45,7 @@ template <size_t dim, typename device_t>
 void
 InitOrszagTangDataFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                 FaceDataArrayBlock_t         Bface,
-                                                FieldMap<core::models::MHD>  fm,
+                                                FieldMap<models::MHD>        fm,
                                                 orchard_key_view_t<device_t> orchard_keys,
                                                 int32_t                      local_num_octants,
                                                 ConfigMap const &            config_map)
@@ -93,10 +93,10 @@ InitOrszagTangDataFunctor<dim, device_t>::operator()(TagInitHydroVar,
   const auto iOct = global_index / m_Udata.num_cells();
   const auto cell_index = global_index - iOct * m_Udata.num_cells();
 
-  constexpr auto ID = core::models::MHD::ID;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // Orszag-Tang vortex problem parameters
   const real_t     gamma0 = m_mhd_settings.hydro.gamma0;
@@ -328,11 +328,11 @@ void
 InitOrszagTangDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy,
                                                      const int32_t & global_index) const
 {
-  constexpr auto ID = core::models::MHD::ID;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto ID = models::MHD::ID;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
+  constexpr auto IE = models::MHD::IE;
 
   // convert global index into
   // - octant id

@@ -13,13 +13,14 @@
 
 #include <kalypsso/core/kalypsso_core_config.h>
 #include <kalypsso/core/kalypsso_data_container.h>
-#include <kalypsso/core/models/MHD.h>
-#include <kalypsso/core/models/MHDSettings.h>
 #include <kalypsso/core/orchard_key_base.h>
 #include <kalypsso/core/amr_hashmap.h>
 #include <kalypsso/core/MeshMap.h>
 #include <kalypsso/core/AMRContext.h>
 #include <kalypsso/core/brick_utils.h>
+
+#include <godunov_mhd_ct/models/MHD.h>
+#include <godunov_mhd_ct/models/MHDSettings.h>
 
 #include <../better-enums/enum.h>
 
@@ -36,8 +37,8 @@ class SolverGodunovMHD;
 template <typename device_t>
 using orchard_key_view_t = typename orchard_key_base_t<device_t>::view_t;
 
-//! Shorthand for the hydrodynamic model
-using MHD = core::models::MHD;
+//! Shorthand for the MHD model
+using MHD = models::MHD;
 
 //! Hashmap type from Orchard keys to octant index
 template <typename device_t>

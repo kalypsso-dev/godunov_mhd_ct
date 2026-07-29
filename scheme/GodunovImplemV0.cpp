@@ -102,11 +102,11 @@ GodunovImplemV0<dim, device_t>::total_mem_size_in_bytes()
 // =====================================================================
 template <size_t dim, typename device_t>
 void
-GodunovImplemV0<dim, device_t>::do_time_step(DataArrayBlock_t     U,
-                                             DataArrayBlock_t     U2,
-                                             FaceDataArrayBlock_t Bface,
-                                             FaceDataArrayBlock_t Bface2,
-                                             real_t               dt)
+GodunovImplemV0<dim, device_t>::do_time_step(DataArrayBlock_t const &     U,
+                                             DataArrayBlock_t const &     U2,
+                                             FaceDataArrayBlock_t const & Bface,
+                                             FaceDataArrayBlock_t const & Bface2,
+                                             real_t                       dt)
 {
 
   /*
@@ -212,7 +212,7 @@ GodunovImplemV0<dim, device_t>::do_time_step(DataArrayBlock_t     U,
 // =====================================================================
 template <size_t dim, typename device_t>
 void
-GodunovImplemV0<dim, device_t>::fill_Bface_ghosted(FaceDataArrayBlock_t Bface)
+GodunovImplemV0<dim, device_t>::fill_Bface_ghosted(FaceDataArrayBlock_t const & Bface)
 {
 
   KALYPSSO_PROFILING_REGION_DEVICE(this->m_profiling_mgr, NUM_SCHEME_COMPUTE_BFACE_GHOSTED);
@@ -245,8 +245,8 @@ GodunovImplemV0<dim, device_t>::fill_Bface_ghosted(FaceDataArrayBlock_t Bface)
 template <size_t dim, typename device_t>
 void
 GodunovImplemV0<dim, device_t>::convert_to_primitives_in_mirror_quads(
-  DataArrayBlock_t     U,
-  FaceDataArrayBlock_t Bface_ghosted)
+  DataArrayBlock_t const &     U,
+  FaceDataArrayBlock_t const & Bface_ghosted)
 {
 
   KALYPSSO_PROFILING_REGION_DEVICE(this->m_profiling_mgr, NUM_SCHEME_CONV_PRIM);
@@ -272,8 +272,8 @@ GodunovImplemV0<dim, device_t>::convert_to_primitives_in_mirror_quads(
 // =====================================================================
 template <size_t dim, typename device_t>
 void
-GodunovImplemV0<dim, device_t>::convert_to_primitives(DataArrayBlock_t     U,
-                                                      FaceDataArrayBlock_t Bface_ghosted)
+GodunovImplemV0<dim, device_t>::convert_to_primitives(DataArrayBlock_t const &     U,
+                                                      FaceDataArrayBlock_t const & Bface_ghosted)
 {
 
   KALYPSSO_PROFILING_REGION_DEVICE(this->m_profiling_mgr, NUM_SCHEME_CONV_PRIM);
@@ -516,10 +516,10 @@ GodunovImplemV0<dim, device_t>::compute_viscous_fluxes_and_store_in_owned_and_gh
 // =====================================================================
 template <size_t dim, typename device_t>
 void
-GodunovImplemV0<dim, device_t>::read_fluxes_and_update_in_owned(DataArrayBlock_t     u_out,
-                                                                FaceDataArrayBlock_t b_out,
-                                                                real_t               dt,
-                                                                int                  direction)
+GodunovImplemV0<dim, device_t>::read_fluxes_and_update_in_owned(DataArrayBlock_t const &     u_out,
+                                                                FaceDataArrayBlock_t const & b_out,
+                                                                real_t                       dt,
+                                                                int direction)
 {
 
   KALYPSSO_PROFILING_REGION_DEVICE(this->m_profiling_mgr, NUM_SCHEME_UPDATE);
@@ -602,7 +602,7 @@ GodunovImplemV0<dim, device_t>::compute_emf_and_store_in_owned_and_ghosts(real_t
 // =====================================================================
 template <size_t dim, typename device_t>
 void
-GodunovImplemV0<dim, device_t>::read_emf_and_update_in_owned(FaceDataArrayBlock_t b_out)
+GodunovImplemV0<dim, device_t>::read_emf_and_update_in_owned(FaceDataArrayBlock_t const & b_out)
 {
   KALYPSSO_PROFILING_REGION_DEVICE(this->m_profiling_mgr, NUM_SCHEME_UPDATE_MAG);
 

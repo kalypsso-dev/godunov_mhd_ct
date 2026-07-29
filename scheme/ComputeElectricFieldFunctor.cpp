@@ -18,7 +18,7 @@ template <size_t dim, typename device_t>
 ComputeElectricFieldFunctor<dim, device_t>::ComputeElectricFieldFunctor(
   DataArrayGhostedBlock_t const & prim_var,
   DataArrayGhostedBlock_t const & elec_field,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         iOct_begin,
   int32_t                         num_octants)
   : m_q(prim_var)
@@ -35,7 +35,7 @@ void
 ComputeElectricFieldFunctor<dim, device_t>::apply_on_group(
   DataArrayGhostedBlock_t const & primitive_vars,
   DataArrayGhostedBlock_t const & elec_field,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         num_quads)
 {
 
@@ -62,7 +62,7 @@ void
 ComputeElectricFieldFunctor<dim, device_t>::apply_on_ghosts(
   DataArrayGhostedBlock_t const & primitive_vars,
   DataArrayGhostedBlock_t const & elec_field,
-  FieldMap<core::models::MHD>     fm,
+  FieldMap<models::MHD>           fm,
   int32_t                         num_mirrors,
   int32_t                         num_ghosts)
 {

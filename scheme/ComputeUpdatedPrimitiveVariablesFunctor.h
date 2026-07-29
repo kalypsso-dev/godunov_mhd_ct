@@ -17,9 +17,9 @@
 #include <kalypsso/core/orchard_key_base.h>
 
 // hydro utils (conservative versus primitive variable, equation of state, ...)
-#include <kalypsso/core/models/MHD.h>
-#include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/mhd_utils.h>
+#include <godunov_mhd_ct/models/MHD.h>
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/mhd_utils.h>
 #include <kalypsso/core/utils_block.h>
 #include <kalypsso/core/GravityField.h>
 #include <kalypsso/core/ViscosityParams.h>
@@ -71,7 +71,7 @@ public:
   using DataArrayGhostedBlock_t = DataArrayGhostedBlock<dim, real_t, device_t>;
 
   // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
 private:
   //! list of orchard key of the mesh
@@ -95,7 +95,7 @@ private:
   DataArrayGhostedBlock_t m_slopes_z;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! starting octant id
   const int32_t m_iOct_begin;
@@ -158,7 +158,7 @@ public:
                                           DataArrayGhostedBlock_t const &  slopes_x,
                                           DataArrayGhostedBlock_t const &  slopes_y,
                                           DataArrayGhostedBlock_t const &  slopes_z,
-                                          FieldMap<core::models::MHD>      fm,
+                                          FieldMap<models::MHD>            fm,
                                           int32_t                          iOct_begin,
                                           int32_t                          num_octants,
                                           MHDSettings const &              mhd_settings,
@@ -181,7 +181,7 @@ public:
                  DataArrayGhostedBlock_t const & slopes_x,
                  DataArrayGhostedBlock_t const & slopes_y,
                  DataArrayGhostedBlock_t const & slopes_z,
-                 FieldMap<core::models::MHD>     fm,
+                 FieldMap<models::MHD>           fm,
                  int32_t                         num_octants,
                  MHDSettings const &             mhd_settings,
                  ViscosityParams const &         viscosity,
@@ -200,7 +200,7 @@ public:
                   DataArrayGhostedBlock_t const & slopes_x,
                   DataArrayGhostedBlock_t const & slopes_y,
                   DataArrayGhostedBlock_t const & slopes_z,
-                  FieldMap<core::models::MHD>     fm,
+                  FieldMap<models::MHD>           fm,
                   int32_t                         num_mirrors,
                   int32_t                         num_ghosts,
                   MHDSettings const &             mhd_settings,

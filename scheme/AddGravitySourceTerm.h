@@ -12,9 +12,9 @@
 #include <kalypsso/core/kokkos_shared.h>
 #include <kalypsso/core/kalypsso_data_container.h> // for DataArrayBlock
 #include <kalypsso/core/FieldMap.h>
-// #include <kalypsso/core/models/mhd_utils.h> // for computePrimitives
 #include <kalypsso/core/GravityField.h>
 
+#include <godunov_mhd_ct/models/MHD.h>
 
 namespace kalypsso
 {
@@ -42,8 +42,8 @@ public:
   //! our kokkos execution space
   using exec_space = typename device_t::execution_space;
 
-  // makes enum Hydro::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  // makes enum MHD::VarId available
+  using MHD = models::MHD;
 
   //! global cell index
   using index_t = int32_t;
@@ -59,7 +59,7 @@ private:
   DataArrayBlock_t m_Unew;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! number of cells per leaf
   const int32_t m_nbCellsPerLeaf;
@@ -71,7 +71,7 @@ public:
   AddGravitySourceTerm(Kokkos::Array<real_t, dim> const & grav,
                        DataArrayBlock_t const &           Uold,
                        DataArrayBlock_t const &           Unew,
-                       FieldMap<core::models::MHD>        fm,
+                       FieldMap<models::MHD>              fm,
                        real_t                             dt)
     : m_grav(grav)
     , m_Uold(Uold)
@@ -90,12 +90,12 @@ public:
   //! \param[in] local_num_octant is the local (current MPI proc) number of octants
   //! \param[in] dt is time step
   static void
-  apply(ConfigMap const &           config_map,
-        DataArrayBlock_t const &    Uold,
-        DataArrayBlock_t const &    Unew,
-        FieldMap<core::models::MHD> fm,
-        int32_t                     local_num_octants,
-        real_t                      dt);
+  apply(ConfigMap const &        config_map,
+        DataArrayBlock_t const & Uold,
+        DataArrayBlock_t const & Unew,
+        FieldMap<models::MHD>    fm,
+        int32_t                  local_num_octants,
+        real_t                   dt);
 
   // ====================================================================
   // ====================================================================

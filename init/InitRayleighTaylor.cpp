@@ -26,7 +26,7 @@ InitRayleighTaylorDataFunctor<dim, device_t>::InitRayleighTaylorDataFunctor(
   HydroParams                  params,
   ConfigMap const &            config_map,
   Kokkos::Array<real_t, dim>   gravity_field,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface)
@@ -55,7 +55,7 @@ InitRayleighTaylorDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEnv
                                                     int32_t                      local_num_octants,
                                                     HydroParams                  params,
                                                     ConfigMap const &            config_map,
-                                                    FieldMap<core::models::MHD>  fm,
+                                                    FieldMap<models::MHD>        fm,
                                                     brick_size_t<dim>            brick_sizes,
                                                     DataArrayBlock_t             Udata,
                                                     FaceDataArrayBlock_t         Bface)
@@ -116,11 +116,11 @@ InitRayleighTaylorDataFunctor<dim, device_t>::operator()(TagInitHydroVar const &
 
   const auto block_sizes = m_Udata.block_size();
 
-  constexpr auto ID = core::models::MHD::ID;
-  constexpr auto IP = core::models::MHD::IP;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  constexpr auto IP = models::MHD::IP;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // Rayleigh-Taylor problem parameters
   const auto                  rho_up = m_rt_params.rho_up;
@@ -397,7 +397,7 @@ KOKKOS_INLINE_FUNCTION void
 InitRayleighTaylorDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy const &,
                                                          const int32_t & global_index) const
 {
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto IE = models::MHD::IE;
 
   // convert global index into
   // - octant id
@@ -451,7 +451,7 @@ InitRayleighTaylorRefineFunctor<dim, device_t>::InitRayleighTaylorRefineFunctor(
   int32_t                      local_num_octants,
   ConfigMap const &            config_map,
   HydroParams                  params,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   brick_size_t<dim>            brick_sizes,
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
@@ -477,15 +477,15 @@ InitRayleighTaylorRefineFunctor<dim, device_t>::InitRayleighTaylorRefineFunctor(
 template <size_t dim, typename device_t>
 void
 InitRayleighTaylorRefineFunctor<dim, device_t>::apply(orchard_key_view_t<device_t> orchard_keys,
-                                                      int32_t                     local_num_octants,
-                                                      ConfigMap const &           config_map,
-                                                      HydroParams                 params,
-                                                      FieldMap<core::models::MHD> fm,
-                                                      brick_size_t<dim>           brick_sizes,
-                                                      DataArrayBlock_t            Udata,
-                                                      FaceDataArrayBlock_t        Bface,
-                                                      amrflags_view_t             amrflags,
-                                                      int                         level_refine)
+                                                      int32_t               local_num_octants,
+                                                      ConfigMap const &     config_map,
+                                                      HydroParams           params,
+                                                      FieldMap<models::MHD> fm,
+                                                      brick_size_t<dim>     brick_sizes,
+                                                      DataArrayBlock_t      Udata,
+                                                      FaceDataArrayBlock_t  Bface,
+                                                      amrflags_view_t       amrflags,
+                                                      int                   level_refine)
 {
   // iterate functor for refinement
   InitRayleighTaylorRefineFunctor functor(orchard_keys,

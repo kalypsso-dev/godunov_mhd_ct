@@ -23,7 +23,7 @@ template <size_t dim, typename device_t>
 InitShockTubeDataFunctor<dim, device_t>::InitShockTubeDataFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   int32_t                      local_num_octants,
   ConfigMap const &            config_map)
@@ -43,7 +43,7 @@ template <size_t dim, typename device_t>
 void
 InitShockTubeDataFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                FaceDataArrayBlock_t         Bface,
-                                               FieldMap<core::models::MHD>  fm,
+                                               FieldMap<models::MHD>        fm,
                                                orchard_key_view_t<device_t> orchard_keys,
                                                int32_t                      local_num_octants,
                                                ConfigMap const &            config_map)
@@ -93,12 +93,12 @@ InitShockTubeDataFunctor<dim, device_t>::operator()(TagInitHydroVar,
 
   const auto & block_sizes = m_Udata.block_size();
 
-  constexpr auto ID = core::models::MHD::ID;
-  // constexpr auto IP = core::models::MHD::IP;
-  constexpr auto IE = core::models::MHD::IE;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  // constexpr auto IP = models::MHD::IP;
+  constexpr auto IE = models::MHD::IE;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // briowu problem parameters
 
@@ -255,7 +255,7 @@ KOKKOS_INLINE_FUNCTION void
 InitShockTubeDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy,
                                                     const int32_t & global_index) const
 {
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto IE = models::MHD::IE;
 
   // convert global index into
   // - octant id
@@ -309,7 +309,7 @@ template <size_t dim, typename device_t>
 InitShockTubeRefineFunctor<dim, device_t>::InitShockTubeRefineFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   amrflags_view_t              amrflags,
   int32_t                      local_num_octants,
@@ -333,7 +333,7 @@ template <size_t dim, typename device_t>
 void
 InitShockTubeRefineFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                  FaceDataArrayBlock_t         Bface,
-                                                 FieldMap<core::models::MHD>  fm,
+                                                 FieldMap<models::MHD>        fm,
                                                  orchard_key_view_t<device_t> orchard_keys,
                                                  amrflags_view_t              amrflags,
                                                  int32_t                      local_num_octants,

@@ -5,16 +5,16 @@
 /**
  * \file ComputeDerivedQuantities.h
  */
-#ifndef KALYPSSO_GODUNOV_MHD_COMPUTE_DERIVED_QUANTITIES_H_
-#define KALYPSSO_GODUNOV_MHD_COMPUTE_DERIVED_QUANTITIES_H_
+#ifndef KALYPSSO_GODUNOV_MHD_CT_COMPUTE_DERIVED_QUANTITIES_H_
+#define KALYPSSO_GODUNOV_MHD_CT_COMPUTE_DERIVED_QUANTITIES_H_
 
 #include <kalypsso/core/kalypsso_core_base.h> // for assertm
 #include <kalypsso/core/kokkos_shared.h>
 #include <kalypsso/core/kalypsso_data_container.h> // for DataArrayBlock
 
 #include <kalypsso/core/FieldMap.h>
-#include <kalypsso/core/models/MHDState.h>
-#include <kalypsso/core/models/mhd_utils.h> // for perfect gas EOS
+#include <godunov_mhd_ct/models/MHDState.h>
+#include <godunov_mhd_ct/models/mhd_utils.h> // for perfect gas EOS
 
 namespace kalypsso
 {
@@ -72,7 +72,7 @@ struct ComputeDerivedQuantities
   using ExecutionSpace = typename device_t::execution_space;
 
   //! makes enum MHD::VarId available
-  using MHD = kalypsso::core::models::MHD;
+  using MHD = models::MHD;
 
   // ==========================================================================
   // ==========================================================================
@@ -98,7 +98,7 @@ struct ComputeDerivedQuantities
   static DataArrayBlock_t
   run(DataArrayBlock_t const &     Udata,
       FaceDataArrayBlock_t const & Bface,
-      FieldMap<core::models::MHD>  fm,
+      FieldMap<models::MHD>        fm,
       DERIVED_QUANTITY             quantity,
       MHDSettings const &          mhd_settings,
       int64_t                      iOct_begin,
@@ -168,7 +168,7 @@ struct ComputeDerivedQuantities
         }
 
         // compute primitive variables and speed of sound in current cell
-        const auto qLoc = core::models::mhd::computePrimitives(uLoc, mhd_settings);
+        const auto qLoc = models::mhd::compute_primitives(uLoc, mhd_settings);
 
         if (quantity._to_integral() == +DERIVED_QUANTITY::THERMAL_PRESSURE)
         {
@@ -231,7 +231,7 @@ struct ComputeDerivedQuantities
             res(cell_index, 0, iOct) = ZERO_F;
           }
         }
-      });
+      }); // end Kokkos::parallel_for
 
     return res;
 
@@ -242,7 +242,7 @@ struct ComputeDerivedQuantities
   static DataArrayBlock_t
   run(DataArrayBlock_t const &     Udata,
       FaceDataArrayBlock_t const & Bface,
-      FieldMap<core::models::MHD>  fm,
+      FieldMap<models::MHD>        fm,
       std::string                  quantity,
       MHDSettings const &          mhd_settings,
       int64_t                      iOct_begin,
@@ -270,4 +270,4 @@ struct ComputeDerivedQuantities
 
 } // namespace kalypsso
 
-#endif // KALYPSSO_GODUNOV_MHD_COMPUTE_DERIVED_QUANTITIES_H_
+#endif // KALYPSSO_GODUNOV_MHD_CT_COMPUTE_DERIVED_QUANTITIES_H_

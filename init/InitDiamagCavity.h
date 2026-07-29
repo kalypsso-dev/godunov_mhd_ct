@@ -61,7 +61,7 @@ private:
   DiamagCavityParams m_dcParams;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! p4est brick connectivity sizes
   brick_size_t<dim> m_brick_sizes;
@@ -98,7 +98,7 @@ public:
                               int32_t                      local_num_octants,
                               HydroParams                  params,
                               ConfigMap const &            config_map,
-                              FieldMap<core::models::MHD>  fm,
+                              FieldMap<models::MHD>        fm,
                               brick_size_t<dim>            brick_sizes,
                               DataArrayBlock_t             Udata,
                               FaceDataArrayBlock_t         Bface);
@@ -110,7 +110,7 @@ public:
         int32_t                              local_num_octants,
         HydroParams                          params,
         ConfigMap const &                    config_map,
-        FieldMap<core::models::MHD>          fm,
+        FieldMap<models::MHD>                fm,
         brick_size_t<dim>                    brick_sizes,
         DataArrayBlock_t                     Udata,
         FaceDataArrayBlock_t                 Bface);
@@ -178,7 +178,7 @@ private:
   DiamagCavityParams m_dcParams;
 
   //! field manager
-  FieldMap<core::models::MHD> m_fm;
+  FieldMap<models::MHD> m_fm;
 
   //! p4est brick connectivity sizes
   brick_size_t<dim> m_brick_sizes;
@@ -211,7 +211,7 @@ public:
                                 int32_t                      local_num_octants,
                                 ConfigMap const &            config_map,
                                 HydroParams                  params,
-                                FieldMap<core::models::MHD>  fm,
+                                FieldMap<models::MHD>        fm,
                                 brick_size_t<dim>            brick_sizes,
                                 DataArrayBlock_t             Udata,
                                 FaceDataArrayBlock_t         Bface,
@@ -226,7 +226,7 @@ public:
         int32_t                      local_num_octants,
         ConfigMap const &            config_map,
         HydroParams                  params,
-        FieldMap<core::models::MHD>  fm,
+        FieldMap<models::MHD>        fm,
         brick_size_t<dim>            brick_sizes,
         DataArrayBlock_t             Udata,
         FaceDataArrayBlock_t         Bface,

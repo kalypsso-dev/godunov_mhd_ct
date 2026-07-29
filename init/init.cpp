@@ -162,13 +162,12 @@ init_restart([[maybe_unused]] SolverGodunovMHD<dim, device_t> & solver)
 
     for (auto & iter : id2names)
     {
-      auto varId = static_cast<typename core::models::MHD::VarId>(iter.first);
+      auto varId = static_cast<typename models::MHD::VarId>(iter.first);
 
       // get variables string name
       const auto varName = id2names.at(varId);
 
-      if (varId != core::models::MHD::IBX and varId != core::models::MHD::IBY and
-          varId != core::models::MHD::IBZ)
+      if (varId != models::MHD::IBX and varId != models::MHD::IBY and varId != models::MHD::IBZ)
       {
         total_num_bytes += reader.read_quadrant_attribute(
           solver.Uhost(), fm[varId], varName, 0, solver.Uhost().num_quadrants());

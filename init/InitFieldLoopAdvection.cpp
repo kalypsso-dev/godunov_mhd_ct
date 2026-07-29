@@ -25,7 +25,7 @@ template <size_t dim, typename device_t>
 InitFieldLoopAdvectionDataFunctor<dim, device_t>::InitFieldLoopAdvectionDataFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   int32_t                      local_num_octants,
   ConfigMap const &            config_map)
@@ -45,12 +45,12 @@ InitFieldLoopAdvectionDataFunctor<dim, device_t>::InitFieldLoopAdvectionDataFunc
 // ====================================================================
 template <size_t dim, typename device_t>
 void
-InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(DataArrayBlock_t            Udata,
-                                                        FaceDataArrayBlock_t        Bface,
-                                                        FieldMap<core::models::MHD> fm,
-                                                        MeshMap<dim, device_t> &    mesh_map,
-                                                        int32_t           local_num_octants,
-                                                        ConfigMap const & config_map)
+InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(DataArrayBlock_t         Udata,
+                                                        FaceDataArrayBlock_t     Bface,
+                                                        FieldMap<models::MHD>    fm,
+                                                        MeshMap<dim, device_t> & mesh_map,
+                                                        int32_t                  local_num_octants,
+                                                        ConfigMap const &        config_map)
 {
   // data init functor
   InitFieldLoopAdvectionDataFunctor functor(
@@ -116,12 +116,12 @@ InitFieldLoopAdvectionDataFunctor<dim, device_t>::operator()(TagInitHydroVar,
   const auto iOct = global_index / m_Udata.num_cells();
   const auto cell_index = global_index - iOct * m_Udata.num_cells();
 
-  constexpr auto ID = core::models::MHD::ID;
-  // constexpr auto IP = core::models::MHD::IP;
-  constexpr auto IE = core::models::MHD::IE;
-  constexpr auto IU = core::models::MHD::IU;
-  constexpr auto IV = core::models::MHD::IV;
-  constexpr auto IW = core::models::MHD::IW;
+  constexpr auto ID = models::MHD::ID;
+  // constexpr auto IP = models::MHD::IP;
+  constexpr auto IE = models::MHD::IE;
+  constexpr auto IU = models::MHD::IU;
+  constexpr auto IV = models::MHD::IV;
+  constexpr auto IW = models::MHD::IW;
 
   // field loop advection problem parameters
   const auto                  xc = m_flaParams.xc;
@@ -238,7 +238,7 @@ KOKKOS_INLINE_FUNCTION void
 InitFieldLoopAdvectionDataFunctor<dim, device_t>::operator()(TagInitTotalEnergy,
                                                              const int32_t & global_index) const
 {
-  constexpr auto IE = core::models::MHD::IE;
+  constexpr auto IE = models::MHD::IE;
 
   const auto & block_sizes = m_Udata.block_size();
 
@@ -292,7 +292,7 @@ template <size_t dim, typename device_t>
 InitFieldLoopAdvectionRefineFunctor<dim, device_t>::InitFieldLoopAdvectionRefineFunctor(
   DataArrayBlock_t             Udata,
   FaceDataArrayBlock_t         Bface,
-  FieldMap<core::models::MHD>  fm,
+  FieldMap<models::MHD>        fm,
   orchard_key_view_t<device_t> orchard_keys,
   amrflags_view_t              amrflags,
   int32_t                      local_num_octants,
@@ -316,7 +316,7 @@ template <size_t dim, typename device_t>
 void
 InitFieldLoopAdvectionRefineFunctor<dim, device_t>::apply(DataArrayBlock_t             Udata,
                                                           FaceDataArrayBlock_t         Bface,
-                                                          FieldMap<core::models::MHD>  fm,
+                                                          FieldMap<models::MHD>        fm,
                                                           orchard_key_view_t<device_t> orchard_keys,
                                                           amrflags_view_t              amrflags,
                                                           int32_t           local_num_octants,
