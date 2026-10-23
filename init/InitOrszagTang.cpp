@@ -409,7 +409,6 @@ void
 InitOrszagTang<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
 {
 
-  auto              amr_mesh = solver.amr_mesh();
   ConfigMap const & config_map = solver.config_map();
   const int         level_min = solver.hydro_params().level_min;
   const int         level_max = solver.hydro_params().level_max;
@@ -428,8 +427,8 @@ InitOrszagTang<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
   InitOrszagTangDataFunctor<dim, device_t>::apply(solver.U(),
                                                   solver.Bface(),
                                                   solver.model().get_fieldmap(),
-                                                  solver.mesh_map()->orchard_keys(),
-                                                  solver.amr_mesh()->local_num_quadrants(),
+                                                  solver.amr_mgr().get_orchard_keys(),
+                                                  solver.amr_mgr().get_nb_owned(),
                                                   config_map);
 
   // iterate several refinements
@@ -447,8 +446,8 @@ InitOrszagTang<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
     InitOrszagTangDataFunctor<dim, device_t>::apply(solver.U(),
                                                     solver.Bface(),
                                                     solver.model().get_fieldmap(),
-                                                    solver.mesh_map()->orchard_keys(),
-                                                    solver.amr_mesh()->local_num_quadrants(),
+                                                    solver.amr_mgr().get_orchard_keys(),
+                                                    solver.amr_mgr().get_nb_owned(),
                                                     config_map);
 
 

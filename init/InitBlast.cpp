@@ -20,14 +20,15 @@ namespace godunov_mhd_ct
 // ====================================================================
 // ====================================================================
 template <size_t dim, typename device_t>
-InitBlastDataFunctor<dim, device_t>::InitBlastDataFunctor(orchard_key_view_t<device_t> orchard_keys,
-                                                          int32_t               local_num_octants,
-                                                          HydroParams           params,
-                                                          ConfigMap const &     config_map,
-                                                          FieldMap<models::MHD> fm,
-                                                          brick_size_t<dim>     brick_sizes,
-                                                          DataArrayBlock_t      Udata,
-                                                          FaceDataArrayBlock_t  Bface)
+InitBlastDataFunctor<dim, device_t>::InitBlastDataFunctor(
+  orchard_key_view_t<device_t> const & orchard_keys,
+  int32_t                              local_num_octants,
+  HydroParams const &                  params,
+  ConfigMap const &                    config_map,
+  FieldMap<models::MHD>                fm,
+  brick_size_t<dim>                    brick_sizes,
+  DataArrayBlock_t const &             Udata,
+  FaceDataArrayBlock_t const &         Bface)
   : m_orchard_keys(orchard_keys)
   , m_local_num_octants(local_num_octants)
   , m_params(params)
@@ -46,14 +47,14 @@ InitBlastDataFunctor<dim, device_t>::InitBlastDataFunctor(orchard_key_view_t<dev
 template <size_t dim, typename device_t>
 auto
 InitBlastDataFunctor<dim, device_t>::apply([[maybe_unused]] ParallelEnv const & par_env,
-                                           orchard_key_view_t<device_t>         orchard_keys,
+                                           orchard_key_view_t<device_t> const & orchard_keys,
                                            int32_t                              local_num_octants,
-                                           HydroParams                          params,
+                                           HydroParams const &                  params,
                                            ConfigMap const &                    config_map,
                                            FieldMap<models::MHD>                fm,
                                            brick_size_t<dim>                    brick_sizes,
-                                           DataArrayBlock_t                     Udata,
-                                           FaceDataArrayBlock_t                 Bface)
+                                           DataArrayBlock_t const &             Udata,
+                                           FaceDataArrayBlock_t const &         Bface)
 {
   // data init functor
   InitBlastDataFunctor functor(
@@ -502,7 +503,6 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
 
   using exec_space = typename device_t::execution_space;
 
-  auto                amr_mesh = solver.amr_mesh();
   ConfigMap const &   config_map = solver.config_map();
   HydroParams const & params = solver.hydro_params();
   const int           level_min = solver.hydro_params().level_min;
@@ -520,8 +520,8 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
   // first init of Udata
   total_volume_inside =
     InitBlastDataFunctor<dim, device_t>::apply(solver.par_env(),
-                                               solver.mesh_map()->orchard_keys(),
-                                               solver.amr_mesh()->local_num_quadrants(),
+                                               solver.amr_mgr().get_orchard_keys(),
+                                               solver.amr_mgr().get_nb_owned(),
                                                params,
                                                config_map,
                                                solver.model().get_fieldmap(),
@@ -549,8 +549,8 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
       //
       total_volume_inside =
         InitBlastDataFunctor<dim, device_t>::apply(solver.par_env(),
-                                                   solver.mesh_map()->orchard_keys(),
-                                                   solver.amr_mesh()->local_num_quadrants(),
+                                                   solver.amr_mgr().get_orchard_keys(),
+                                                   solver.amr_mgr().get_nb_owned(),
                                                    params,
                                                    config_map,
                                                    solver.model().get_fieldmap(),
@@ -570,17 +570,17 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
     while (level < level_max)
     {
       //
-      // 1. create context data for AMR cycle
+      // 1. reset AMR flags
       //
-      AMRContext<dim, device_t> amr_context(amr_mesh->forest()->local_num_quadrants);
-      auto                      flags_d = amr_context.m_amrflags_d;
-      auto                      flags_h = amr_context.m_amrflags_h;
+      solver.amr_mgr().reset_amr_flags();
+      auto flags_h = solver.amr_mgr().get_amr_flags_on_host();
+      auto flags_d = solver.amr_mgr().get_amr_flags_on_device();
 
       //
       // 2. compute refine/coarsen flags
       //
-      InitBlastRefineFunctor<dim, device_t>::apply(solver.mesh_map()->orchard_keys(),
-                                                   solver.amr_mesh()->local_num_quadrants(),
+      InitBlastRefineFunctor<dim, device_t>::apply(solver.amr_mgr().get_orchard_keys(),
+                                                   solver.amr_mgr().get_nb_owned(),
                                                    solver.config_map(),
                                                    solver.hydro_params(),
                                                    solver.model().get_fieldmap(),
@@ -593,31 +593,25 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
       Kokkos::deep_copy(flags_h, flags_d);
 
       //
-      // 3. apply AMR cycle on device : refine + coarsen + 2:1 balance
+      // 3. apply AMR cycle on device :
       //
-      {
-        Kokkos::Profiling::ScopedRegion prof("AMR_refinement_device");
-        [[maybe_unused]] auto changed = amr_context.adapt_mesh(solver.amr_mesh()->forest());
-        KALYPSSO_INFO_ALL("Mesh changed ? {}", static_cast<int>(changed));
-      }
+      // - refine + coarsen + 2:1 balance
+      // - rebuild mesh
+      //
+      solver.amr_mgr().rebuild_from_context();
 
-      //
-      // 4. re-compute update orchard keys
-      //
-      solver.update_mesh(do_reset_ghosts);
-
-      // 5. resize Udata
+      // 4. resize Udata
       // now we know the size of the mesh, we can allocate memory for
       // heavy data (U, U2, Uhost, ...)
       solver.resize_solver_data();
 
       //
-      // 6. update Udata
+      // 5. update Udata
       //
       total_volume_inside =
         InitBlastDataFunctor<dim, device_t>::apply(solver.par_env(),
-                                                   solver.mesh_map()->orchard_keys(),
-                                                   solver.amr_mesh()->local_num_quadrants(),
+                                                   solver.amr_mgr().get_orchard_keys(),
+                                                   solver.amr_mgr().get_nb_owned(),
                                                    params,
                                                    config_map,
                                                    solver.model().get_fieldmap(),
@@ -646,11 +640,11 @@ InitBlast<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
     auto       fm = solver.model().get_fieldmap();
     auto       U = solver.U();
     const auto nbCellsPerLeaf = U.num_cells();
-    const auto local_num_octants = solver.amr_mesh()->local_num_quadrants();
+    const auto local_num_octants = solver.amr_mgr().get_nb_owned();
     const auto nbCellsTotal = local_num_octants * nbCellsPerLeaf;
     const auto scaling_factor = get_scaling_factor(config_map);
     const auto xyz_min = get_xyz_min<dim>(config_map);
-    const auto orchard_keys = solver.mesh_map()->orchard_keys();
+    const auto orchard_keys = solver.amr_mgr().get_orchard_keys();
 
     // rescale pressure
     Kokkos::parallel_for(

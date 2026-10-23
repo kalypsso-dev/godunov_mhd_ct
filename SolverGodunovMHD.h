@@ -21,9 +21,7 @@
 #include <kalypsso/core/SolverBase.h>
 #include <kalypsso/core/HydroParams.h>
 #include <kalypsso/core/kokkos_shared.h>
-#include <kalypsso/core/AMRmesh.h>
-#include <kalypsso/core/MeshMap.h>
-#include <kalypsso/core/FieldMap.h>
+#include <kalypsso/core/AMRManager.h>
 #include <kalypsso/utils/mpi/ParallelEnv.h>
 #include <kalypsso/core/utils_block.h>
 #include <kalypsso/core/TimeIntegratorConfig.h>
@@ -34,7 +32,6 @@
 #include <godunov_mhd_ct/models/MHD.h>
 #include <godunov_mhd_ct/scheme/GodunovImplemBase.h>
 #include <godunov_mhd_ct/scheme/GodunovImplemV0.h>
-// #include <godunov_mhd_ct/scheme/GodunovImplemV1.h>
 #include <godunov_mhd_ct/utils/ComputeDerivedQuantities.h>
 
 // AMR services
@@ -56,14 +53,13 @@
 
 namespace kalypsso
 {
-
 namespace godunov_mhd_ct
 {
 
 /**
  * \class SolverGodunovMHD
  *
- * Main data structure for solving 2D/3D MHD with MUSCL-Hancock + constraint transport.
+ * \brief Main data structure for solving 2D/3D MHD with MUSCL-Hancock + constraint transport.
  *
  * @note:
  * - Hydrodynamics variable (rho, momentum and total energy) are cell-centered
@@ -120,7 +116,7 @@ public:
   virtual ~SolverGodunovMHD();
 
   /**
-   * Static creation method called by the solver factory.
+   * \brief Static creation method called by the solver factory.
    */
   static SolverBase *
   create(ParallelEnv const & par_env, HydroParams const & params, ConfigMap const & config_map)
@@ -143,6 +139,17 @@ public:
   void
   resize_solver_data();
 
+  /**
+   * \brief Gets the solver's amr details
+   *
+   * \return A reference to the solver's AMR manager
+   */
+  core::AMRManager<dim, device_t> &
+  amr_mgr()
+  {
+    return m_amr_mgr;
+  }
+
   //! update orchard keys by recomputing them from current forest state, and update hashmap
   //!
   //! \param[in] reset_p4est_ghost boolean value to enforce recompute p4est's ghost data structure
@@ -162,7 +169,6 @@ public:
     }
     return "unknown_solver";
   };
-
 
   //! do_amr_cycle is supposed to be called after
   //! the numerical scheme (godunov_unsplit)
@@ -200,20 +206,6 @@ public:
   //! print monitoring info at the end (timing, cell-updates/s, etc...)
   void
   print_monitoring_info_final() override;
-
-  //! return a shared pointer to amr_mesh
-  std::shared_ptr<AMRmesh<dim>>
-  amr_mesh()
-  {
-    return m_amr_mesh;
-  }
-
-  //! return a shared pointer to our MeshMap
-  std::shared_ptr<MeshMap<dim, device_t>>
-  mesh_map()
-  {
-    return m_mesh_map;
-  }
 
   ConfigMap const &
   config_map() const
@@ -305,19 +297,8 @@ private:
   //! MHD parameters
   const MHDSettings m_mhd_settings;
 
-  //! The main AMR object
-  std::shared_ptr<AMRmesh<dim>> m_amr_mesh;
-
-  //! mesh map is a helper class for creating a hashmap of orchard key to memory address
-  std::shared_ptr<MeshMap<dim, device_t>> m_mesh_map;
-
-#ifdef KALYPSSO_CORE_USE_MPI
-  //! MPI communications to exchange ghost block userdata
-  MeshGhostsExchanger<dim, real_t, device_t> m_mesh_ghosts_exchanger;
-#endif // KALYPSSO_CORE_USE_MPI
-
-  //! Perform AMR mesh adaptation (no user data involved here)
-  AMRContext<dim, device_t> m_amr_context;
+  //! AMR manager
+  core::AMRManager<dim, device_t> m_amr_mgr;
 
   //! time integrator
   const TimeIntegrator m_time_integrator;
@@ -342,36 +323,13 @@ private:
 
   GodunovImplemBase<dim, device_t> * m_godunov_implem;
 
-#ifdef KALYPSSO_CORE_USE_MPI
-  GodunovImplemBase<dim, device_t> *
-  create_godunov_implem(int impl_version)
-  {
-    if (impl_version == 0)
-    {
-      GodunovImplemBase<dim, device_t> * impl_ptr =
-        GodunovImplemV0<dim, device_t>::create(m_par_env,
-                                               m_params,
-                                               m_config_map,
-                                               m_profiling_mgr,
-                                               *m_amr_mesh,
-                                               *m_mesh_map,
-                                               m_mesh_ghosts_exchanger);
-      return impl_ptr;
-    }
-    else
-    {
-      Kokkos::abort("Wrong value for input parameter hydro/implementation_version");
-    }
-    return nullptr;
-  } // create_godunov_implem
-#else
   GodunovImplemBase<dim, device_t> *
   create_godunov_implem(int impl_version)
   {
     if (impl_version == 0)
     {
       GodunovImplemBase<dim, device_t> * impl_ptr = GodunovImplemV0<dim, device_t>::create(
-        m_par_env, m_params, m_config_map, m_profiling_mgr, *m_amr_mesh, *m_mesh_map);
+        m_par_env, m_params, m_config_map, m_profiling_mgr, m_amr_mgr);
       return impl_ptr;
     }
     else
@@ -380,7 +338,6 @@ private:
     }
     return nullptr;
   } // create_godunov_implem
-#endif // KALYPSSO_CORE_USE_MPI
 
   //
   // user data
@@ -408,8 +365,8 @@ private:
   FaceDataArrayBlock_t m_Bface_RK;
 
   /**
-   * border condition (other than periodic), specified in the following order: XMIN, XMAX, YMIN,
-   * YMAX, ....
+   * \brief border condition (other than periodic), specified in the following order: XMIN, XMAX,
+   * YMIN, YMAX, ....
    */
   BorderConditionsConfig<BC_MHD>::bc_array_t<dim> m_bc_types;
 
@@ -440,19 +397,17 @@ private:
   void
   fill_outside_quadrants(DataArrayBlock_t const & Udata, FaceDataArrayBlock_t const & Bdata);
 
-  //! mark cells for refinement
+  //! compute refinement flags
   void
-  mark_cells();
-
-  //! adapt mesh and recompute connectivity
-  void
-  adapt_mesh();
+  compute_refine_flags();
 
   //! map data from old U to new U after adapting mesh
   //!
   //! \param[in] amr_hashmap_before_adapt is the amr hashmap before mesh adaptation
+  //! \param[in] orchard_keys_before_adapt is the keys before mesh adaptation
   void
-  map_userdata_after_adapt(amr_hashmap_t const & amr_hashmap_before_adapt);
+  map_userdata_after_adapt(amr_hashmap_t const &               old_hashmap,
+                           core::OrchardKeys<device_t> const & old_keys);
 
 }; // class SolverGodunovMHD
 

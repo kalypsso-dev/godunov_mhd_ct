@@ -98,26 +98,26 @@ public:
   struct TagInitTotalEnergy
   {};
 
-  InitBlastDataFunctor(orchard_key_view_t<device_t> orchard_keys,
+  InitBlastDataFunctor(orchard_key_view_t<device_t> const & orchard_keys,
                        int32_t                      local_num_octants,
-                       HydroParams                  params,
+                       HydroParams         const &         params,
                        ConfigMap const &            config_map,
                        FieldMap<models::MHD>        fm,
                        brick_size_t<dim>            brick_sizes,
-                       DataArrayBlock_t             Udata,
-                       FaceDataArrayBlock_t         Bface);
+                       DataArrayBlock_t        const &     Udata,
+                       FaceDataArrayBlock_t    const &     Bface);
 
   // static method which does it all: create and execute functor
   static auto
   apply([[maybe_unused]] ParallelEnv const & par_env,
-        orchard_key_view_t<device_t>         orchard_keys,
+        orchard_key_view_t<device_t> const &  orchard_keys,
         int32_t                              local_num_octants,
-        HydroParams                          params,
+        HydroParams           const &               params,
         ConfigMap const &                    config_map,
         FieldMap<models::MHD>                fm,
         brick_size_t<dim>                    brick_sizes,
-        DataArrayBlock_t                     Udata,
-        FaceDataArrayBlock_t                 Bface);
+        DataArrayBlock_t             const &        Udata,
+        FaceDataArrayBlock_t         const &        Bface);
 
   // ====================================================================
   // ====================================================================
