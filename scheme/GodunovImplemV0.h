@@ -175,7 +175,7 @@ private:
   //! slopes along Z dir - ghosted block array of octant's block data - owned + ghosts
   DataArrayGhostedBlock_t m_Slopes_z;
 
-  //! Temporary buffer used to stored hydrodynamics flux (owned + ghost + outside block).
+  //! Temporary buffer used to store hydrodynamics flux (owned + ghost + outside block).
   //! It will be reshaped as needed to store either fluxes along X, Y or Z direction.
   DataArrayBlock_t m_Fluxes;
 
