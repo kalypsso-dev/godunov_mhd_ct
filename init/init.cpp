@@ -89,7 +89,7 @@ init(SolverGodunovMHD<dim, device_t> & solver)
 
     // print mesh info
     {
-      const auto amr_mesh_info = solver.amr_mgr().get_mesh_map()->get_amr_mesh_info();
+      const auto amr_mesh_info = solver.amr_mgr().get_amr_mesh_info();
       if (solver.par_env().rank() == 0)
       {
         amr_mesh_info.print();
