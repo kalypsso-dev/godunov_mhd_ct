@@ -43,16 +43,12 @@ public:
   using FaceDataArrayBlock_t = typename GodunovImplemBase_t::FaceDataArrayBlock_t;
 
 
-  GodunovImplemV0(ParallelEnv const &      par_env,
-                  HydroParams const &      params,
-                  ConfigMap const &        config_map,
-                  ProfilingManager &       profiling_manager,
+  GodunovImplemV0(ParallelEnv const &               par_env,
+                  HydroParams const &               params,
+                  ConfigMap const &                 config_map,
+                  ProfilingManager &                profiling_manager,
                   core::AMRManager<dim, device_t> & amr_mgr)
-    : GodunovImplemBase_t(par_env,
-                          params,
-                          config_map,
-                          profiling_manager,
-                          amr_mgr)
+    : GodunovImplemBase_t(par_env, params, config_map, profiling_manager, amr_mgr)
     , m_Q_ghosted(this->m_block_sizes,
                   this->m_block_sizes + 2 * 2,
                   get_shift<dim>(-2),

@@ -51,10 +51,10 @@ public:
   using DataArrayGhostedBlock_t = DataArrayGhostedBlock<dim, real_t, device_t>;
   using FaceDataArrayBlock_t = FaceDataArrayBlock<dim, real_t, device_t>;
 
-  GodunovImplemBase(ParallelEnv const &      par_env,
-                    HydroParams const &      params,
-                    ConfigMap const &        config_map,
-                    ProfilingManager &       profiling_manager,
+  GodunovImplemBase(ParallelEnv const &               par_env,
+                    HydroParams const &               params,
+                    ConfigMap const &                 config_map,
+                    ProfilingManager &                profiling_manager,
                     core::AMRManager<dim, device_t> & amr_mgr)
     : m_par_env(par_env)
     , m_params(params)
