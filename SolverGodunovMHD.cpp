@@ -23,7 +23,8 @@
 #ifdef KALYPSSO_CORE_USE_MPI
 #  include <kalypsso/core/MeshPartitioner.h>
 #endif // KALYPSSO_CORE_USE_MPI
-#include <kalypsso/core/ComputeRefineFlags.h>
+
+#include <kalypsso/core/ComputeRefineFlags.h> // specific refinement strategies
 #include <kalypsso/core/UserDataRemapper.h>
 #include <kalypsso/core/AMRMeshMonitoring.h>
 #include <kalypsso/core/LinearCombination.h>
@@ -69,12 +70,7 @@ SolverGodunovMHD<dim, device_t>::SolverGodunovMHD(ParallelEnv const & par_env,
   , m_is_brick_periodic(get_brick_periodicity<dim>(config_map))
   , m_model(config_map)
   , m_mhd_settings(config_map)
-  , m_amr_mesh(std::make_shared<AMRmesh<dim>>(par_env, config_map))
-  , m_mesh_map(std::make_shared<MeshMap<dim, device_t>>(config_map, par_env))
-#ifdef KALYPSSO_CORE_USE_MPI
-  , m_mesh_ghosts_exchanger(config_map, par_env, *m_amr_mesh, *m_mesh_map)
-#endif // KALYPSSO_CORE_USE_MPI
-  , m_amr_context(0)
+  , m_amr_mgr(par_env, config_map)
   , m_time_integrator(TimeIntegratorConfig::get_time_integrator(config_map))
   , m_conservativity_check()
   , m_godunov_impl_version(config_map.getInteger("hydro", "implementation_version", 0))
@@ -87,7 +83,8 @@ SolverGodunovMHD<dim, device_t>::SolverGodunovMHD(ParallelEnv const & par_env,
   , m_Bface_RK("Bface_RK", m_block_sizes, 0)
   , m_bc_types(BorderConditionsConfig<BC_MHD>::read_border_condition<dim>(config_map, par_env))
 #ifdef KALYPSSO_CORE_USE_HDF5
-  , m_hdf5_writer(std::make_shared<HDF5_Xdmf_Writer_t>(m_par_env, m_config_map, m_mesh_map))
+  , m_hdf5_writer(
+      std::make_shared<HDF5_Xdmf_Writer_t>(m_par_env, m_config_map, m_amr_mgr.get_mesh_map()))
 #endif // KALYPSSO_CORE_USE_HDF5
 {
   // TODO: evaluate if we should abort earlier, i.e. before this constructor
@@ -109,7 +106,7 @@ SolverGodunovMHD<dim, device_t>::SolverGodunovMHD(ParallelEnv const & par_env,
    */
 
   // minimal number of cells only used for initial memory allocation
-  // afterwards memory resizing will append
+  // afterwards memory resizing will happen
   int32_t nbOcts = 1 << params.level_min;
 
   nbOcts = params.dimType == TWO_D ? nbOcts * nbOcts : nbOcts * nbOcts * nbOcts;
@@ -215,7 +212,7 @@ SolverGodunovMHD<dim, device_t>::resize_auxiliary_data()
 
   KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_RESIZE_AUX);
 
-  m_Uhost.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+  m_Uhost.resize(m_amr_mgr.get_nb_total());
 
   assertm(m_godunov_implem != nullptr,
           "[SolverGodunovMHD::resize_auxiliary_data] godunov_implem pointer has invalid value.");
@@ -231,17 +228,17 @@ void
 SolverGodunovMHD<dim, device_t>::resize_solver_data()
 {
 
-  m_U.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
-  m_U2.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+  m_U.resize(m_amr_mgr.get_nb_total());
+  m_U2.resize(m_amr_mgr.get_nb_total());
 
   // resize Bface (magnetic field components)
-  m_Bface.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
-  m_Bface2.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+  m_Bface.resize(m_amr_mgr.get_nb_total());
+  m_Bface2.resize(m_amr_mgr.get_nb_total());
 
   if (m_time_integrator == +TimeIntegrator::RK2_SSP)
   {
-    m_U_RK.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
-    m_Bface_RK.resize(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+    m_U_RK.resize(m_amr_mgr.get_nb_total());
+    m_Bface_RK.resize(m_amr_mgr.get_nb_total());
   }
 
   resize_auxiliary_data();
@@ -255,25 +252,7 @@ void
 SolverGodunovMHD<dim, device_t>::update_mesh(bool reset_p4est_ghost)
 {
 
-  if (reset_p4est_ghost)
-  {
-    m_amr_mesh->reset_ghost();
-  }
-
-  // update number of outside quad
-  m_mesh_map->compute_outside_quad_info(m_amr_mesh->forest(), m_amr_mesh->ghost());
-
-  // update orchard keys array and hashmap
-  m_mesh_map->update_hashmap(m_amr_mesh->forest(), m_amr_mesh->ghost(), true);
-
-  // update orchard keys in mirror quadrants (useful for computing primitive variables in mirror and
-  // doing MPI comm)
-  m_mesh_map->update_mirror_orchard_keys(m_amr_mesh->ghost());
-
-  // recompute/update number of quadrants per types (owned, ghost, outside, outside_ghost)
-  m_mesh_map->update_amr_mesh_info(m_amr_mesh->forest(), m_amr_mesh->ghost());
-
-  m_mesh_map->update_conformal_status();
+  m_amr_mgr.rebuild(reset_p4est_ghost);
 
 } // SolverGodunovMHD<dim, device_t>::update_mesh
 
@@ -302,31 +281,32 @@ SolverGodunovMHD<dim, device_t>::do_amr_cycle()
   synchronize_mpi_ghost_data(m_U, m_Bface);
   fill_outside_quadrants(m_U, m_Bface);
 
-  // 2. resize AMR flags (stored in AMRContext)
-  //    and mark cell for refinement / coarsening
-  m_amr_context.resize_amrflags(m_mesh_map->get_amr_mesh_info().local_num_quadrants());
-  mark_cells();
+  // 2. Compute refinement / coarsening flags (array of flags will be resized inside)
+  compute_refine_flags();
 
   // 3. adapt mesh (refine/coarsen/balance) + re-compute connectivity
 
-  // 3.1 store hashmap before mesh adaptation
-  auto hashmap_before_amr = m_mesh_map->hashmap_clone();
+  // 3.1 store hashmap and orchard keys before mesh adaptation
+  auto old_hashmap = m_amr_mgr.get_hashmap_clone();
+
+  // old orchard keys are needed in case, one wants to compute stencil computation over the old map
+  // this happens when doing prolongation with linear extrapolation using limited slopes
+  // (limited slopes require stencil computations).
+  auto old_keys = m_amr_mgr.get_orchard_keys_clone();
 
   // 3.2 adapt mesh (apply refinement using p4est)
-  adapt_mesh();
+  {
+    KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_ADAPT_MESH);
+    m_amr_mgr.rebuild_from_context();
+  }
 
   // 4. map data to new data array
-  map_userdata_after_adapt(hashmap_before_amr);
+  map_userdata_after_adapt(old_hashmap, old_keys);
 
-  // 5. update orchard keys and hashmap (so that ghost is also up to date)
-  // This is probably (TBC) not needed because already done above inside adapt_mesh
-  // constexpr bool do_reset_ghosts = true;
-  // update_mesh(do_reset_ghosts);
-
-  // 6. resize auxiliary data
+  // 5. resize auxiliary data
   resize_auxiliary_data();
 
-  // call base class member (increment number of AMR cycle done)
+  // call base class member (increment number of AMR cycles done)
   SolverBase::do_amr_cycle();
 
   const auto memory_monitoring_verbose =
@@ -351,26 +331,24 @@ SolverGodunovMHD<dim, device_t>::do_load_balancing()
   if (m_par_env.nRanks() > 1)
   {
 
-    MeshPartitioner<dim, device_t> mesh_partitioner(m_config_map, m_par_env);
-
     // 1. partition mesh
     {
       KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, LOAD_BALANCING_PARTITION_MESH);
-      mesh_partitioner.partition_mesh(this->m_amr_mesh->forest());
+      m_amr_mgr.repartition_mesh();
     }
 
     // 2. partition user data from U to U2, U2 is reallocated
     {
       KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, LOAD_BALANCING_PARTITION_USERDATA);
-      mesh_partitioner.repartition_userdata(m_U, m_U2);
-      mesh_partitioner.repartition_userdata(m_Bface, m_Bface2);
+      m_amr_mgr.repartition_userdata(m_U, m_U2);
+      m_amr_mgr.repartition_userdata(m_Bface, m_Bface2);
     }
 
     // 3. update orchard keys and hashmap (so that ghost is also up to date)
     {
       KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, LOAD_BALANCING_UPDATE_MESH);
       constexpr bool do_reset_ghosts = true;
-      update_mesh(do_reset_ghosts);
+      m_amr_mgr.rebuild(do_reset_ghosts);
     }
 
     {
@@ -409,8 +387,8 @@ SolverGodunovMHD<dim, device_t>::compute_dt_local()
 
   // call device functor - compute invDt
   ComputeDtMHDFunctor<dim, device_t>::apply(m_config_map,
-                                            m_mesh_map->orchard_keys(),
-                                            m_mesh_map->get_amr_mesh_info().local_num_quadrants(),
+                                            m_amr_mgr.get_orchard_keys(),
+                                            m_amr_mgr.get_nb_owned(),
                                             m_mhd_settings,
                                             fm,
                                             m_block_sizes,
@@ -452,7 +430,7 @@ SolverGodunovMHD<dim, device_t>::next_iteration_impl()
     {
       // save p4est mesh for restart
       const std::string mesh_filename = this->output_basename() + ".p4est";
-      this->save_p4est_mesh<dim>(mesh_filename, m_amr_mesh->forest());
+      this->save_p4est_mesh<dim>(mesh_filename, m_amr_mgr.get_forest());
 
       KALYPSSO_INFO("Checkpoint at time t={} step={} dt={}", m_t, m_iteration, m_dt);
 
@@ -501,8 +479,7 @@ SolverGodunovMHD<dim, device_t>::next_iteration_impl()
   godunov_unsplit(m_dt);
 
   // compute number of cell-update in current MPI proc.
-  m_total_num_cell_updates +=
-    static_cast<uint64_t>(m_mesh_map->get_amr_mesh_info().local_num_quadrants() * m_U.num_cells());
+  m_total_num_cell_updates += static_cast<uint64_t>(m_amr_mgr.get_nb_owned() * m_U.num_cells());
 
 } // SolverGodunovMHD<dim, device_t>::next_iteration_impl
 
@@ -527,9 +504,9 @@ SolverGodunovMHD<dim, device_t>::godunov_unsplit(real_t dt)
 
     // check that normal magnetic field component at block border is "continuous"
     core::CheckFaceBorderCompatibility<dim, device_t>::apply(m_Bface,
-                                                             m_mesh_map->hashmap(),
-                                                             m_mesh_map->orchard_keys(),
-                                                             m_mesh_map->get_amr_mesh_info(),
+                                                             m_amr_mgr.get_hashmap(),
+                                                             m_amr_mgr.get_orchard_keys(),
+                                                             m_amr_mgr.get_amr_mesh_info(),
                                                              m_config_map,
                                                              m_brick_sizes,
                                                              m_is_brick_periodic,
@@ -552,9 +529,9 @@ SolverGodunovMHD<dim, device_t>::godunov_unsplit(real_t dt)
 
     // check that normal magnetic field component at block border is "continuous"
     core::CheckFaceBorderCompatibility<dim, device_t>::apply(m_Bface2,
-                                                             m_mesh_map->hashmap(),
-                                                             m_mesh_map->orchard_keys(),
-                                                             m_mesh_map->get_amr_mesh_info(),
+                                                             m_amr_mgr.get_hashmap(),
+                                                             m_amr_mgr.get_orchard_keys(),
+                                                             m_amr_mgr.get_amr_mesh_info(),
                                                              m_config_map,
                                                              m_brick_sizes,
                                                              m_is_brick_periodic,
@@ -573,8 +550,7 @@ SolverGodunovMHD<dim, device_t>::godunov_unsplit(real_t dt)
 
   else if (m_time_integrator == +TimeIntegrator::RK2_SSP)
   {
-    const auto num_octants =
-      static_cast<int32_t>(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+    const auto num_octants = static_cast<int32_t>(m_amr_mgr.get_nb_total());
 
     // we need conservative variables in ghost cell to be up to date
     synchronize_mpi_ghost_data(m_U, m_Bface);
@@ -589,9 +565,9 @@ SolverGodunovMHD<dim, device_t>::godunov_unsplit(real_t dt)
 
     // check that normal magnetic field component at block border is "continuous"
     core::CheckFaceBorderCompatibility<dim, device_t>::apply(m_Bface,
-                                                             m_mesh_map->hashmap(),
-                                                             m_mesh_map->orchard_keys(),
-                                                             m_mesh_map->get_amr_mesh_info(),
+                                                             m_amr_mgr.get_hashmap(),
+                                                             m_amr_mgr.get_orchard_keys(),
+                                                             m_amr_mgr.get_amr_mesh_info(),
                                                              m_config_map,
                                                              m_brick_sizes,
                                                              m_is_brick_periodic,
@@ -623,9 +599,9 @@ SolverGodunovMHD<dim, device_t>::godunov_unsplit(real_t dt)
 
     // check that normal magnetic field component at block border is "continuous"
     core::CheckFaceBorderCompatibility<dim, device_t>::apply(m_Bface_RK,
-                                                             m_mesh_map->hashmap(),
-                                                             m_mesh_map->orchard_keys(),
-                                                             m_mesh_map->get_amr_mesh_info(),
+                                                             m_amr_mgr.get_hashmap(),
+                                                             m_amr_mgr.get_orchard_keys(),
+                                                             m_amr_mgr.get_amr_mesh_info(),
                                                              m_config_map,
                                                              m_brick_sizes,
                                                              m_is_brick_periodic,
@@ -651,9 +627,9 @@ SolverGodunovMHD<dim, device_t>::godunov_unsplit(real_t dt)
 
     // check that normal magnetic field component at block border is "continuous"
     core::CheckFaceBorderCompatibility<dim, device_t>::apply(m_Bface2,
-                                                             m_mesh_map->hashmap(),
-                                                             m_mesh_map->orchard_keys(),
-                                                             m_mesh_map->get_amr_mesh_info(),
+                                                             m_amr_mgr.get_hashmap(),
+                                                             m_amr_mgr.get_orchard_keys(),
+                                                             m_amr_mgr.get_amr_mesh_info(),
                                                              m_config_map,
                                                              m_brick_sizes,
                                                              m_is_brick_periodic,
@@ -698,7 +674,7 @@ SolverGodunovMHD<dim, device_t>::print_monitoring_info()
 
   auto monitor = AMRMeshMonitoring<dim, device_t>(m_config_map);
 
-  monitor.print_level_info(m_par_env, *m_mesh_map);
+  monitor.print_level_info(m_par_env, *m_amr_mgr.get_mesh_map());
 
   // also print memory footprint
   KALYPSSO_INFO("Effective memory footprint (per MPI process) : {:.2f} MBytes",
@@ -717,8 +693,8 @@ SolverGodunovMHD<dim, device_t>::print_monitoring_info_final()
 {
 
   print_monitoring_info();
-
   m_profiling_mgr.print_timings();
+  m_amr_mgr.print_timings(m_profiling_mgr.get_total_time(), std::string("AMR cycle"));
 
   // compute total number of cell-updates by reducing over all MPI processes.
   uint64_t cell_updates = 0;
@@ -749,12 +725,12 @@ template <size_t dim, typename device_t>
 void
 SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
 {
-  const auto num_octants = m_mesh_map->get_amr_mesh_info().local_num_quadrants();
+  const auto num_octants = m_amr_mgr.get_nb_owned();
 
   m_conservativity_check.register_value(m_U,
                                         0,
                                         num_octants,
-                                        m_mesh_map->orchard_keys(),
+                                        m_amr_mgr.get_orchard_keys(),
                                         m_model.get_fieldmap()[models::MHD::ID],
                                         "density",
                                         m_config_map,
@@ -764,7 +740,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
   m_conservativity_check.register_value(m_U,
                                         0,
                                         num_octants,
-                                        m_mesh_map->orchard_keys(),
+                                        m_amr_mgr.get_orchard_keys(),
                                         m_model.get_fieldmap()[models::MHD::IE],
                                         "total_energy",
                                         m_config_map,
@@ -774,7 +750,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
   m_conservativity_check.register_value(m_U,
                                         0,
                                         num_octants,
-                                        m_mesh_map->orchard_keys(),
+                                        m_amr_mgr.get_orchard_keys(),
                                         m_model.get_fieldmap()[models::MHD::IU],
                                         "rho_u",
                                         m_config_map,
@@ -784,7 +760,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
   m_conservativity_check.register_value(m_U,
                                         0,
                                         num_octants,
-                                        m_mesh_map->orchard_keys(),
+                                        m_amr_mgr.get_orchard_keys(),
                                         m_model.get_fieldmap()[models::MHD::IV],
                                         "rho_v",
                                         m_config_map,
@@ -796,7 +772,7 @@ SolverGodunovMHD<dim, device_t>::register_volume_integrals(bool is_reference)
     m_conservativity_check.register_value(m_U,
                                           0,
                                           num_octants,
-                                          m_mesh_map->orchard_keys(),
+                                          m_amr_mgr.get_orchard_keys(),
                                           m_model.get_fieldmap()[models::MHD::IW],
                                           "rho_w",
                                           m_config_map,
@@ -838,7 +814,7 @@ SolverGodunovMHD<dim, device_t>::total_mem_size_in_bytes()
   total += m_godunov_implem->total_mem_size_in_bytes();
 
 #ifdef KALYPSSO_CORE_USE_MPI
-  total += m_mesh_ghosts_exchanger.allocated_size_in_bytes();
+  total += m_amr_mgr.get_mesh_ghosts_exchanger().allocated_size_in_bytes();
 #endif
 
   return total;
@@ -852,8 +828,7 @@ SolverGodunovMHD<dim, device_t>::get_derived_quantity(DERIVED_QUANTITY derived_q
   -> DataArrayBlock_t
 {
   const auto & fm = m_model.get_fieldmap();
-  const auto   local_num_quadrants =
-    static_cast<int64_t>(m_mesh_map->get_amr_mesh_info().local_num_quadrants());
+  const auto   local_num_quadrants = static_cast<int64_t>(m_amr_mgr.get_nb_owned());
 
   return ComputeDerivedQuantities<dim, device_t>::run(
     m_U, m_Bface, fm, derived_quantity, m_mhd_settings, 0, local_num_quadrants);
@@ -898,8 +873,7 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
 
   [[maybe_unused]] uint64_t total_num_bytes = 0;
 
-  const auto local_num_quadrants =
-    static_cast<int64_t>(m_mesh_map->get_amr_mesh_info().local_num_quadrants());
+  const auto local_num_quadrants = static_cast<int64_t>(m_amr_mgr.get_nb_owned());
 
   // actual writing (cell data)
   {
@@ -916,7 +890,7 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
     io_timer.start();
     m_hdf5_writer->open(basename, outputDir);
     total_num_bytes += m_hdf5_writer->write_header(m_t);
-    total_num_bytes += m_hdf5_writer->write_amr_metadata(m_mesh_map->orchard_keys_host());
+    total_num_bytes += m_hdf5_writer->write_amr_metadata(m_amr_mgr.get_orchard_keys_host());
 
     // write time and number of time steps
     m_hdf5_writer->write_scalar_attribute("run", "time", m_t);
@@ -976,7 +950,7 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
       if (is_present(write_variables, std::string{ "divB" }))
       {
         const auto divBdata =
-          FaceDataArrayBlock_t::compute_divergence(m_Bface, m_mesh_map->orchard_keys());
+          FaceDataArrayBlock_t::compute_divergence(m_Bface, m_amr_mgr.get_orchard_keys());
         const auto divBdata_host = DataArrayBlock_t::create_host_mirror_view_and_copy(divBdata);
 
         total_num_bytes +=
@@ -1049,7 +1023,7 @@ SolverGodunovMHD<dim, device_t>::save_solution_hdf5([[maybe_unused]] bool pure_c
 
     if (write_conformal_status)
     {
-      m_hdf5_writer->write_quadrant_leaf_scalar(m_mesh_map->conformal_status_host(),
+      m_hdf5_writer->write_quadrant_leaf_scalar(m_amr_mgr.get_conformal_status_host(),
                                                 "conformal_status");
     }
 
@@ -1080,8 +1054,8 @@ SolverGodunovMHD<dim, device_t>::synchronize_mpi_ghost_data(
 
   KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_SYNC_MPI_GHOSTS);
 
-  m_mesh_ghosts_exchanger.exchange(Udata);
-  m_mesh_ghosts_exchanger.exchange(Bdata);
+  m_amr_mgr.get_mesh_ghosts_exchanger().exchange(Udata);
+  m_amr_mgr.get_mesh_ghosts_exchanger().exchange(Bdata);
 
 #endif // KALYPSSO_CORE_USE_MPI
 
@@ -1096,17 +1070,17 @@ SolverGodunovMHD<dim, device_t>::fill_outside_quadrants(DataArrayBlock_t const &
 {
 
   // assert data has expected size (in terms of number of octants/quadrants)
-  assertm(m_U.num_quadrants() == m_mesh_map->get_amr_mesh_info().local_num_quadrants_total(),
+  assertm(m_U.num_quadrants() == m_amr_mgr.get_nb_total(),
           "[SolverGodunovMHD::fill_outside_quadrants] Input array has the wrong size.");
-  assertm(m_Bface.num_quadrants() == m_mesh_map->get_amr_mesh_info().local_num_quadrants_total(),
+  assertm(m_Bface.num_quadrants() == m_amr_mgr.get_nb_total(),
           "[SolverGodunovMHD::fill_outside_quadrants] Input array has the wrong size.");
 
   // apply border condition, this will be a no-op when mesh is periodic
   FillOutsideCellFunctor<dim, device_t>::apply(Udata,
                                                Bdata,
-                                               m_mesh_map->get_amr_mesh_info(),
-                                               m_mesh_map->orchard_keys(),
-                                               m_mesh_map->hashmap(),
+                                               m_amr_mgr.get_amr_mesh_info(),
+                                               m_amr_mgr.get_orchard_keys(),
+                                               m_amr_mgr.get_hashmap(),
                                                m_model.get_fieldmap(),
                                                m_config_map,
                                                m_par_env);
@@ -1117,17 +1091,17 @@ SolverGodunovMHD<dim, device_t>::fill_outside_quadrants(DataArrayBlock_t const &
 // =======================================================
 template <size_t dim, typename device_t>
 void
-SolverGodunovMHD<dim, device_t>::mark_cells()
+SolverGodunovMHD<dim, device_t>::compute_refine_flags()
 {
 
-  KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_MARK_CELLS);
+  KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_COMPUTE_REFINE_FLAGS);
 
   /*
    * coarsen threshold must be smaller than refine threshold (here we take refine threshold divided
    * by 8)
    */
 
-  m_amr_context.reset_amrflags();
+  m_amr_mgr.reset_amr_flags();
 
   // which refine criterion to use ?
   auto const refine_threshold = m_config_map.getReal("amr", "epsilon_refine", KALYPSSO_NUM(0.01));
@@ -1154,20 +1128,19 @@ SolverGodunovMHD<dim, device_t>::mark_cells()
 
       const auto & fm = m_model.get_fieldmap();
 
-      const auto local_num_quadrants =
-        static_cast<int64_t>(m_mesh_map->get_amr_mesh_info().local_num_quadrants());
+      const auto local_num_quadrants = static_cast<int64_t>(m_amr_mgr.get_nb_owned());
 
       // compute derived quantity
       const auto derived_quantity = ComputeDerivedQuantities<dim, device_t>::run(
         m_U, m_Bface, fm, name, m_mhd_settings, 0, local_num_quadrants);
 
-      ComputeRefineFlags<dim, device_t>::run(m_mesh_map->hashmap(),
-                                             m_mesh_map->orchard_keys(),
-                                             m_mesh_map->get_amr_mesh_info().local_num_quadrants(),
+      ComputeRefineFlags<dim, device_t>::run(m_amr_mgr.get_hashmap(),
+                                             m_amr_mgr.get_orchard_keys(),
+                                             m_amr_mgr.get_nb_owned(),
                                              m_brick_sizes,
                                              m_is_brick_periodic,
                                              derived_quantity,
-                                             m_amr_context.m_amrflags_d,
+                                             m_amr_mgr.get_amr_flags_on_device(),
                                              refine_params);
     }
     else
@@ -1195,106 +1168,75 @@ SolverGodunovMHD<dim, device_t>::mark_cells()
                                          ivar_to_refine,
                                          epsilon_lohner };
 
-      ComputeRefineFlags<dim, device_t>::run(m_mesh_map->hashmap(),
-                                             m_mesh_map->orchard_keys(),
-                                             m_mesh_map->get_amr_mesh_info().local_num_quadrants(),
+      ComputeRefineFlags<dim, device_t>::run(m_amr_mgr.get_hashmap(),
+                                             m_amr_mgr.get_orchard_keys(),
+                                             m_amr_mgr.get_nb_owned(),
                                              m_brick_sizes,
                                              m_is_brick_periodic,
                                              m_U,
-                                             m_amr_context.m_amrflags_d,
+                                             m_amr_mgr.get_amr_flags_on_device(),
                                              refine_params);
     }
   }
 
   // amr context will adapt mesh on CPU, so we need flags on host
-  Kokkos::deep_copy(m_amr_context.m_amrflags_h, m_amr_context.m_amrflags_d);
+  Kokkos::deep_copy(m_amr_mgr.get_amr_flags_on_host(), m_amr_mgr.get_amr_flags_on_device());
 
-} // SolverGodunovMHD<dim, device_t>::mark_cells
-
-// =======================================================
-// =======================================================
-template <size_t dim, typename device_t>
-void
-SolverGodunovMHD<dim, device_t>::adapt_mesh()
-{
-
-  KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_ADAPT_MESH);
-
-  //
-  // apply AMR cycle: refine + coarsen + 2:1 balance
-  //
-  [[maybe_unused]] const auto changed = m_amr_context.adapt_mesh(m_amr_mesh->forest());
-  // KALYPSSO_INFO("Mesh changed ? {}", changed);
-
-  // update orchard key, hashmap, etc....
-  // const auto do_reset_ghosts = true;
-  update_mesh(changed);
-
-} // SolverGodunovMHD<dim, device_t>::adapt_mesh
+} // SolverGodunovMHD<dim, device_t>::compute_refine_flags
 
 // =======================================================
 // =======================================================
 template <size_t dim, typename device_t>
 void
 SolverGodunovMHD<dim, device_t>::map_userdata_after_adapt(
-  amr_hashmap_t const & amr_hashmap_before_adapt)
+  amr_hashmap_t const &               old_hashmap,
+  core::OrchardKeys<device_t> const & old_keys)
 {
 
   KALYPSSO_PROFILING_REGION_HOST(m_profiling_mgr, AMR_CYCLE_USERDATA_REMAP);
 
-  // clone the AMR orchard keys of the old mesh.
-  //
-  // they are needed in case, one wants to compute stencil computation over the old map
-  // this happens when doing prolongation with linear extrapolation using limited slopes
-  // (limited slopes require stencil computations).
-  auto orchard_keys_device_old = m_mesh_map->orchard_keys_clone();
-
-  // update the AMR keys for the new mesh
-  m_mesh_map->update_orchard_keys(m_amr_mesh->forest(), m_amr_mesh->ghost());
-
-  UserDataRemapper<dim, device_t> userdataRemapper(
-    amr_hashmap_before_adapt,
-    m_mesh_map->orchard_keys(),
-    orchard_keys_device_old,
-    m_mesh_map->get_amr_mesh_info().local_num_quadrants(),
-    m_block_sizes,
-    m_config_map);
+  UserDataRemapper<dim, device_t> userdataRemapper(old_hashmap,
+                                                   m_amr_mgr.get_orchard_keys(),
+                                                   old_keys,
+                                                   m_amr_mgr.get_nb_owned(),
+                                                   m_block_sizes,
+                                                   m_config_map);
 
   ExecutionSpace exec_space;
 
   // remap cell-centered data from m_U to m_U2
   {
-    m_U2.resize_and_reset(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+    m_U2.resize_and_reset(m_amr_mgr.get_nb_total());
 
     userdataRemapper.remap_block_data(exec_space, m_U, m_U2);
 
     // swap U2 and U, so that most up to data data are always in U
     my_swap(m_U, m_U2);
 
-    m_U2.resize_and_reset(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+    m_U2.resize_and_reset(m_amr_mgr.get_nb_total());
     Kokkos::deep_copy(exec_space, m_U2.logical_view(), m_U.logical_view());
 
     if (m_time_integrator == +TimeIntegrator::RK2_SSP)
     {
-      m_U_RK.resize_and_reset(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+      m_U_RK.resize_and_reset(m_amr_mgr.get_nb_total());
     }
   }
 
   // remap face-center data from m_Bface to m_Bface2
   {
-    m_Bface2.resize_and_reset(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+    m_Bface2.resize_and_reset(m_amr_mgr.get_nb_total());
 
     userdataRemapper.remap_block_data(exec_space, m_Bface, m_Bface2);
 
     // swap Bface2 and Bface, so that most up to data data are always in Bface
     my_swap(m_Bface, m_Bface2);
 
-    m_Bface2.resize_and_reset(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+    m_Bface2.resize_and_reset(m_amr_mgr.get_nb_total());
     Kokkos::deep_copy(exec_space, m_Bface2.logical_view(), m_Bface.logical_view());
 
     if (m_time_integrator == +TimeIntegrator::RK2_SSP)
     {
-      m_Bface_RK.resize_and_reset(m_mesh_map->get_amr_mesh_info().local_num_quadrants_total());
+      m_Bface_RK.resize_and_reset(m_amr_mgr.get_nb_total());
     }
   }
 
@@ -1309,9 +1251,9 @@ SolverGodunovMHD<dim, device_t>::map_userdata_after_adapt(
 
   // check that normal magnetic field component at block border is "continuous"
   core::CheckFaceBorderCompatibility<dim, device_t>::apply(m_Bface,
-                                                           m_mesh_map->hashmap(),
-                                                           m_mesh_map->orchard_keys(),
-                                                           m_mesh_map->get_amr_mesh_info(),
+                                                           m_amr_mgr.get_hashmap(),
+                                                           m_amr_mgr.get_orchard_keys(),
+                                                           m_amr_mgr.get_amr_mesh_info(),
                                                            m_config_map,
                                                            m_brick_sizes,
                                                            m_is_brick_periodic,

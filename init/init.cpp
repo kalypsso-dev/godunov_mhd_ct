@@ -4,6 +4,8 @@
 
 /**
  * \file init.cpp
+ *
+ * \brief Contains the definition of the solver initialization functions.
  */
 #include <godunov_mhd_ct/init/init.h>
 
@@ -35,9 +37,9 @@ void
 init(SolverGodunovMHD<dim, device_t> & solver)
 {
   // check if we are performing a re-start run (default : false)
-  bool restartEnabled = solver.config_map().getBool("restart", "enabled", false);
+  bool restart_enabled = solver.config_map().getBool("restart", "enabled", false);
 
-  if (restartEnabled)
+  if (restart_enabled)
   {
     // load data from input data file
     init_restart(solver);
@@ -87,7 +89,7 @@ init(SolverGodunovMHD<dim, device_t> & solver)
 
     // print mesh info
     {
-      const auto amr_mesh_info = solver.mesh_map()->get_amr_mesh_info();
+      const auto amr_mesh_info = solver.amr_mgr().get_amr_mesh_info();
       if (solver.par_env().rank() == 0)
       {
         amr_mesh_info.print();
@@ -131,7 +133,7 @@ init_restart([[maybe_unused]] SolverGodunovMHD<dim, device_t> & solver)
   }
 
   // read p4est mesh and setup AMRmesh
-  solver.amr_mesh()->create_p4est_resources_from_file(
+  solver.amr_mgr().get_mesh().create_p4est_resources_from_file(
     solver.par_env(), solver.config_map(), p4est_filename.c_str());
 
   // refresh AMR
@@ -145,8 +147,8 @@ init_restart([[maybe_unused]] SolverGodunovMHD<dim, device_t> & solver)
     // resize user data U, U2, Bface, Bface2
     solver.resize_solver_data();
 
-    auto reader =
-      HDF5_Xdmf_Reader<dim, device_t>(solver.par_env(), solver.config_map(), solver.mesh_map());
+    auto reader = HDF5_Xdmf_Reader<dim, device_t>(
+      solver.par_env(), solver.config_map(), solver.amr_mgr().get_mesh_map());
     reader.open(hdf5_filename);
 
     // read time and number of time steps

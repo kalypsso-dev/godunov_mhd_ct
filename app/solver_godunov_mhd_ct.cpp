@@ -112,7 +112,7 @@ run_simulation(ParallelEnv const &       par_env,
     auto derived_solver = dynamic_cast<godunov_mhd_ct::SolverGodunovMHD<dim, device_t> *>(solver);
     const std::string mesh_filename = derived_solver->output_basename() + ".p4est";
     derived_solver->template save_p4est_mesh<dim>(mesh_filename,
-                                                  derived_solver->amr_mesh()->forest());
+                                                  derived_solver->amr_mgr().get_forest());
   }
 
   solver->profiling_mgr().get_whole_region().stop();
@@ -149,9 +149,9 @@ run_simulation(ParallelEnv const &       par_env,
         solver_mhd->U(),
         solver_mhd->Bface(),
         0,
-        solver_mhd->mesh_map()->get_amr_mesh_info().local_num_quadrants(),
+        solver_mhd->amr_mgr().get_nb_owned(),
         st_params.direction,
-        solver_mhd->mesh_map()->orchard_keys(),
+        solver_mhd->amr_mgr().get_orchard_keys(),
         cell_var_ids,
         cell_var_names,
         face_var_ids,
@@ -171,9 +171,9 @@ run_simulation(ParallelEnv const &       par_env,
       kalypsso::core::ComputeDataSliceAlongLine<dim, device_t>::apply(
         thermal_pressure,
         0,
-        solver_mhd->mesh_map()->get_amr_mesh_info().local_num_quadrants(),
+        solver_mhd->amr_mgr().get_nb_owned(),
         st_params.direction,
-        solver_mhd->mesh_map()->orchard_keys(),
+        solver_mhd->amr_mgr().get_orchard_keys(),
         cell_var_ids,
         cell_var_names,
         st_name,
@@ -253,7 +253,7 @@ main(int argc, char * argv[])
     const auto dim = kalypsso::get_dim(config_map);
     assertm(dim == 2 or dim == 3, "[solver_godunov_mhd_ct] Wrong dimension");
 
-    // run some test
+    // run simulation
     if (dim == 2)
     {
       kalypsso::run_simulation<2, kalypsso::DefaultDevice>(par_env, config_map, argc, argv);

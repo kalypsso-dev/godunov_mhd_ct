@@ -43,28 +43,12 @@ public:
   using FaceDataArrayBlock_t = typename GodunovImplemBase_t::FaceDataArrayBlock_t;
 
 
-  GodunovImplemV0(ParallelEnv const &      par_env,
-                  HydroParams const &      params,
-                  ConfigMap const &        config_map,
-                  ProfilingManager &       profiling_manager,
-                  AMRmesh<dim> const &     amr_mesh,
-                  MeshMap<dim, device_t> & mesh_map
-#ifdef KALYPSSO_CORE_USE_MPI
-                  ,
-                  MeshGhostsExchanger<dim, real_t, device_t> & mesh_ghosts_exchanger
-#endif // KALYPSSO_CORE_USE_MPI
-                  )
-    : GodunovImplemBase_t(par_env,
-                          params,
-                          config_map,
-                          profiling_manager,
-                          amr_mesh,
-                          mesh_map
-#ifdef KALYPSSO_CORE_USE_MPI
-                          ,
-                          mesh_ghosts_exchanger
-#endif // KALYPSSO_CORE_USE_MPI
-                          )
+  GodunovImplemV0(ParallelEnv const &               par_env,
+                  HydroParams const &               params,
+                  ConfigMap const &                 config_map,
+                  ProfilingManager &                profiling_manager,
+                  core::AMRManager<dim, device_t> & amr_mgr)
+    : GodunovImplemBase_t(par_env, params, config_map, profiling_manager, amr_mgr)
     , m_Q_ghosted(this->m_block_sizes,
                   this->m_block_sizes + 2 * 2,
                   get_shift<dim>(-2),
@@ -126,25 +110,14 @@ public:
    * Static creation method called by the solver factory.
    */
   static GodunovImplemBase_t *
-  create(ParallelEnv const &      par_env,
-         HydroParams const &      params,
-         ConfigMap const &        config_map,
-         ProfilingManager &       profiling_manager,
-         AMRmesh<dim> const &     amr_mesh,
-         MeshMap<dim, device_t> & mesh_map
-#ifdef KALYPSSO_CORE_USE_MPI
-         ,
-         MeshGhostsExchanger<dim, real_t, device_t> & mesh_ghosts_exchanger
-#endif // KALYPSSO_CORE_USE_MPI
-  )
+  create(ParallelEnv const &               par_env,
+         HydroParams const &               params,
+         ConfigMap const &                 config_map,
+         ProfilingManager &                profiling_manager,
+         core::AMRManager<dim, device_t> & amr_mgr)
   {
-#ifdef KALYPSSO_CORE_USE_MPI
-    GodunovImplemV0<dim, device_t> * impl = new GodunovImplemV0<dim, device_t>(
-      par_env, params, config_map, profiling_manager, amr_mesh, mesh_map, mesh_ghosts_exchanger);
-#else
-    GodunovImplemV0<dim, device_t> * impl = new GodunovImplemV0<dim, device_t>(
-      par_env, params, config_map, profiling_manager, amr_mesh, mesh_map);
-#endif // KALYPSSO_CORE_USE_MPI
+    GodunovImplemV0<dim, device_t> * impl =
+      new GodunovImplemV0<dim, device_t>(par_env, params, config_map, profiling_manager, amr_mgr);
 
     return impl;
   }
@@ -161,6 +134,7 @@ public:
   uint64_t
   total_mem_size_in_bytes() override;
 
+  //! Perform actual time integration.
   void
   do_time_step(DataArrayBlock_t const &     U,
                DataArrayBlock_t const &     U2,
@@ -197,7 +171,7 @@ private:
   //! slopes along Z dir - ghosted block array of octant's block data - owned + ghosts
   DataArrayGhostedBlock_t m_Slopes_z;
 
-  //! Temporary buffer used to stored hydrodynamics flux (owned + ghost + outside block).
+  //! Temporary buffer used to store hydrodynamics flux (owned + ghost + outside block).
   //! It will be reshaped as needed to store either fluxes along X, Y or Z direction.
   DataArrayBlock_t m_Fluxes;
 

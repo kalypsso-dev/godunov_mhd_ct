@@ -36,7 +36,7 @@ BETTER_ENUM(ProfilingZone, uint32_t,
     AMR_CYCLE_RESIZE_AUX,
     AMR_CYCLE_COPY_HASHMAP,
     AMR_CYCLE_SYNC_MPI_GHOSTS,
-    AMR_CYCLE_MARK_CELLS,
+    AMR_CYCLE_COMPUTE_REFINE_FLAGS,
     AMR_CYCLE_ADAPT_MESH,
     AMR_CYCLE_USERDATA_REMAP,
   LOAD_BALANCING,
@@ -79,7 +79,7 @@ private:
       ADD_CASE(AMR_CYCLE_RESIZE_AUX,              "AMR_CYCLE::RESIZE_AUX                  ", RoyalBlue);
       ADD_CASE(AMR_CYCLE_COPY_HASHMAP,            "AMR_CYCLE::COPY_HASHMAP                ", DodgerBlue);
       ADD_CASE(AMR_CYCLE_SYNC_MPI_GHOSTS,         "AMR_CYCLE::SYNC_MPI_GHOSTS             ", SteelBlue);
-      ADD_CASE(AMR_CYCLE_MARK_CELLS,              "AMR_CYCLE::MARK_CELLS                  ", SteelBlue);
+      ADD_CASE(AMR_CYCLE_COMPUTE_REFINE_FLAGS,    "AMR_CYCLE::COMPUTE_REFINE_FLAGS        ", SteelBlue);
       ADD_CASE(AMR_CYCLE_ADAPT_MESH,              "AMR_CYCLE::ADAPT_MESH                  ", Lavender);
       ADD_CASE(AMR_CYCLE_USERDATA_REMAP,          "AMR_CYCLE::USERDATA_REMAP              ", DeepSkyBlue);
       ADD_CASE(LOAD_BALANCING,                    "LOAD_BALANCING                         ", LightBlue);

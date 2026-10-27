@@ -415,7 +415,6 @@ template <size_t dim, typename device_t>
 void
 InitFieldLoopAdvection<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & solver)
 {
-  auto              amr_mesh = solver.amr_mesh();
   ConfigMap const & config_map = solver.config_map();
   const int         level_min = solver.hydro_params().level_min;
   const int         level_max = solver.hydro_params().level_max;
@@ -430,8 +429,8 @@ InitFieldLoopAdvection<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & s
   InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(solver.U(),
                                                           solver.Bface(),
                                                           solver.model().get_fieldmap(),
-                                                          *(solver.mesh_map()),
-                                                          solver.amr_mesh()->local_num_quadrants(),
+                                                          *solver.amr_mgr().get_mesh_map(),
+                                                          solver.amr_mgr().get_nb_owned(),
                                                           config_map);
 
   const auto init_refine_type = core::get_init_indicator(config_map);
@@ -452,13 +451,12 @@ InitFieldLoopAdvection<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & s
       //
       // 2. update Udata
       //
-      InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(
-        solver.U(),
-        solver.Bface(),
-        solver.model().get_fieldmap(),
-        *(solver.mesh_map()),
-        solver.amr_mesh()->local_num_quadrants(),
-        config_map);
+      InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(solver.U(),
+                                                              solver.Bface(),
+                                                              solver.model().get_fieldmap(),
+                                                              *(solver.amr_mgr().get_mesh_map()),
+                                                              solver.amr_mgr().get_nb_owned(),
+                                                              config_map);
 
       // update level
       ++level;
@@ -472,57 +470,49 @@ InitFieldLoopAdvection<dim, device_t>::apply(SolverGodunovMHD<dim, device_t> & s
     while (level < level_max)
     {
       //
-      // 1. create context data for AMR cycle
+      // 1. reset AMR flags
       //
-      AMRContext<dim, device_t> amr_context(amr_mesh->forest()->local_num_quadrants);
-      auto                      flags_d = amr_context.m_amrflags_d;
-      auto                      flags_h = amr_context.m_amrflags_h;
+      solver.amr_mgr().reset_amr_flags();
+      auto flags_h = solver.amr_mgr().get_amr_flags_on_host();
+      auto flags_d = solver.amr_mgr().get_amr_flags_on_device();
 
       //
       // 2. compute refine/coarsen flags
       //
-      InitFieldLoopAdvectionRefineFunctor<dim, device_t>::apply(
-        solver.U(),
-        solver.Bface(),
-        solver.model().get_fieldmap(),
-        solver.mesh_map()->orchard_keys(),
-        flags_d,
-        solver.amr_mesh()->local_num_quadrants(),
-        level,
-        solver.config_map());
+      InitFieldLoopAdvectionRefineFunctor<dim, device_t>::apply(solver.U(),
+                                                                solver.Bface(),
+                                                                solver.model().get_fieldmap(),
+                                                                solver.amr_mgr().get_orchard_keys(),
+                                                                flags_d,
+                                                                solver.amr_mgr().get_nb_owned(),
+                                                                level,
+                                                                solver.config_map());
 
       // amr context will adapt mesh on CPU, so we need flags on host up to date
       Kokkos::deep_copy(flags_h, flags_d);
 
       //
-      // 3. apply AMR cycle on device : refine + coarsen + 2:1 balance
+      // 3. apply AMR cycle on device :
       //
-      {
-        Kokkos::Profiling::ScopedRegion prof("AMR_refinement_device");
-        [[maybe_unused]] auto changed = amr_context.adapt_mesh(solver.amr_mesh()->forest());
-        KALYPSSO_INFO_ALL("Mesh changed ? {}", static_cast<int>(changed));
-      }
+      // - refine + coarsen + 2:1 balance
+      // - rebuild mesh
+      //
+      solver.amr_mgr().rebuild_from_context();
 
-      //
-      // 4. re-compute update orchard keys
-      //
-      solver.update_mesh(do_reset_ghosts);
-
-      // 5. resize Udata
+      // 4. resize Udata
       // now we know the size of the mesh, we can allocate memory for
       // heavy data (U, U2, Uhost, ...)
       solver.resize_solver_data();
 
       //
-      // 6. update Udata
+      // 5. update Udata
       //
-      InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(
-        solver.U(),
-        solver.Bface(),
-        solver.model().get_fieldmap(),
-        *(solver.mesh_map()),
-        solver.amr_mesh()->local_num_quadrants(),
-        config_map);
+      InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(solver.U(),
+                                                              solver.Bface(),
+                                                              solver.model().get_fieldmap(),
+                                                              *(solver.amr_mgr().get_mesh_map()),
+                                                              solver.amr_mgr().get_nb_owned(),
+                                                              config_map);
 
       // update level
       ++level;
