@@ -82,9 +82,8 @@ init(SolverGodunovMHD<dim, device_t> & solver)
     }
     else
     {
-      KALYPSSO_WARN("Problem : {} is not recognized / implemented.", problem_name);
-      KALYPSSO_WARN("Use default - orszag_tang");
-      InitOrszagTang<dim, device_t>::apply(solver);
+      KALYPSSO_ERROR("Problem : {} is not recognized / implemented.", problem_name);
+      Kokkos::abort("Check your input parameter file for \"problem\"");
     }
 
     // print mesh info
