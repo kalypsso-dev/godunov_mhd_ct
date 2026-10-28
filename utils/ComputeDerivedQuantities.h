@@ -140,9 +140,7 @@ struct ComputeDerivedQuantities
       // strangely, nvc++ is ok and don't need that
       // TODO: remove theses lines when nvcc will have support for this.
 #ifdef __NVCC__
-        [[maybe_unused]] int dummy = 0;
-        if (Bface.num_quadrants() == 0)
-          dummy++;
+        (void)Bface;
 #endif
 
         if constexpr (dim == 2)
