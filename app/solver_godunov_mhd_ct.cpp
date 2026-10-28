@@ -34,6 +34,7 @@
 #include <kalypsso/core/ComputeDataSliceAlongLine.h>
 
 #include <kalypsso/core/cmdline_utils.h>
+#include <kalypsso/core/io_utils.h>
 #include <kalypsso/utils/log/kalypsso_log.h>
 
 // banner
@@ -245,7 +246,19 @@ main(int argc, char * argv[])
     std::string input_filename = kalypsso::cmdline_get_string(argv, argv + argc, "--ini");
 
     if (input_filename.size() == 0)
-      input_filename = "test_blast_2D_block.ini";
+    {
+      const std::string err_str("Input parameter file is invalid (filename not provided)");
+      KALYPSSO_ERROR(err_str.c_str());
+      Kokkos::abort(err_str.c_str());
+    }
+
+    if (!kalypsso::file_exists(input_filename))
+    {
+      const auto err_str =
+        std::string("Input parameter file \"") + input_filename + std::string("\" doesn't exist");
+      KALYPSSO_ERROR(err_str.c_str());
+      Kokkos::abort(err_str.c_str());
+    }
 
     // only MPI rank 0 actually reads input file, and broadcast it to all other MPI processor
     kalypsso::ConfigMap config_map = kalypsso::broadcast_parameters(input_filename);
