@@ -694,7 +694,7 @@ SolverGodunovMHD<dim, device_t>::print_monitoring_info_final()
 
   print_monitoring_info();
   m_profiling_mgr.print_timings();
-  m_amr_mgr.print_timings(m_profiling_mgr.get_total_time(), std::string("AMR cycle"));
+  m_amr_mgr.print_timings(m_profiling_mgr.total_time(), std::string("AMR cycle"));
 
   // compute total number of cell-updates by reducing over all MPI processes.
   uint64_t cell_updates = 0;
