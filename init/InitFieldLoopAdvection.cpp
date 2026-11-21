@@ -87,7 +87,7 @@ InitFieldLoopAdvectionDataFunctor<dim, device_t>::apply(DataArrayBlock_t        
           mesh_map.orchard_keys(),
           functor.vectorPotential(),
           analytical_vec_pot,
-          mesh_map.update_conformal_full_status(),
+          mesh_map.update_conformal_full_status(FullConformalStatusQuadrantType::OWNED_AND_GHOST),
           local_num_octants);
 
   // initialize magnetic field (i.e. compute curl of vector_potential)
